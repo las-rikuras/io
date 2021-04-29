@@ -5,26 +5,88 @@
   <object class="GtkWindow" id="window_menu">
     <property name="can_focus">False</property>
     <property name="resizable">False</property>
-    <property name="default_width">250</property>
-    <property name="default_height">400</property>
+    <property name="default_width">220</property>
+    <property name="default_height">310</property>
     <signal name="destroy" handler="on_window_menu_destroy" swapped="no"/>
     <child>
-      <object class="GtkFixed">
+      <object class="GtkLayout">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="width">250</property>
+        <property name="height">400</property>
         <child>
-          <object class="GtkButton" id="floyd_button">
-            <property name="label" translatable="yes">Rutas mas cortas</property>
-            <property name="width_request">100</property>
-            <property name="height_request">80</property>
+          <object class="GtkButton" id="floyd">
+            <property name="label" translatable="yes">Shortest Path</property>
+            <property name="width_request">200</property>
+            <property name="height_request">50</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
-            <signal name="clicked" handler="on_floyd_button_clicked" swapped="no"/>
+            <signal name="clicked" handler="on_floyd_clicked" swapped="no"/>
           </object>
           <packing>
-            <property name="x">48</property>
-            <property name="y">80</property>
+            <property name="x">11</property>
+            <property name="y">12</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="knapsack">
+            <property name="label" translatable="yes">Knapsack</property>
+            <property name="width_request">200</property>
+            <property name="height_request">50</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <signal name="clicked" handler="on_knapsack_clicked" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">10</property>
+            <property name="y">71</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="replacement">
+            <property name="label" translatable="yes">Equipment Replacement</property>
+            <property name="width_request">200</property>
+            <property name="height_request">50</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <signal name="clicked" handler="on_replacement_clicked" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">10</property>
+            <property name="y">131</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="series">
+            <property name="label" translatable="yes">Sport Series</property>
+            <property name="width_request">200</property>
+            <property name="height_request">50</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <signal name="clicked" handler="on_series_clicked" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">10</property>
+            <property name="y">193</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="exit">
+            <property name="label" translatable="yes">Exit</property>
+            <property name="width_request">200</property>
+            <property name="height_request">50</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <signal name="clicked" handler="on_exit_clicked" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">10</property>
+            <property name="y">251</property>
           </packing>
         </child>
       </object>

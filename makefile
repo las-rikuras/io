@@ -1,18 +1,19 @@
-TARGET=proyecto
+# make NAME=main
+TARGET=$(NAME)
 
 CCFLAGS=-g -O0 -Wall -pthread -pipe
 
 GTK=`pkg-config --cflags --libs gtk+-3.0`
 
-LDFLAGS=$(PTHREAD) $(GTK) -export-dynamic
+LDFLAGS=-pthread $(GTK) -export-dynamic
 
-OBJS= main.o
+OBJS= $(NAME).o
 
 all: $(OBJS)
 	gcc -o $(TARGET) $(OBJS) $(LDFLAGS)
     
-main.o: src/main.c
-	gcc -c $(CCFLAGS) src/main.c $(GTK) -o main.o
+$(NAME).o: src/$(NAME).c
+	gcc -c $(CCFLAGS) src/$(NAME).c $(GTK) -o $(NAME).o
     
 clean:
 	rm -f *.o $(TARGET)

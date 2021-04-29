@@ -1,4 +1,5 @@
 #include <gtk/gtk.h>
+#include <stdlib.h>
 
 int main(int argc, char *argv[]){
     GtkBuilder *builder;
@@ -17,4 +18,24 @@ int main(int argc, char *argv[]){
 
 void on_window_menu_destroy(){
     gtk_main_quit();
+}
+
+void on_exit_clicked(){
+    gtk_main_quit();
+}
+
+void on_floyd_clicked(){
+    system("./pending");
+}
+
+void on_knapsack_clicked(){
+    system("./pending");
+}
+
+void on_replacement_clicked(){
+    system("./pending");
+}
+
+void on_series_clicked(){
+    system("./pending");
 }
