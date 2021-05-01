@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 typedef struct value_struct {
-    unsigned int is_infinite:1;
+    int is_infinite;
     int value;
 } Value;
 
