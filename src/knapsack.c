@@ -29,7 +29,8 @@ int get_max(int i, int j, int k){
 void bounded_knapsack(){
     for(int i = 0; i < capacity; i++){
         for(int j = 0; j < parts; j++){
-            for(int k = 0; k <= Q; k++){
+            int q = i/tasks[j][1] > Q ? Q : i/tasks[j][1];
+            for(int k = 0; k <= q; k++){
                 if(task_weight(j, k) <= i){
                     int t1 = get_max(i, j, k);
                     int t2 = knapsack[i][j];
@@ -42,7 +43,7 @@ void bounded_knapsack(){
         }
     }
 }
-
+/*
 void unbounded_knapsack(){ 
     for(int i = 0; i < capacity; i++){
         for(int j = 0; j < parts; j++){
@@ -59,7 +60,7 @@ void unbounded_knapsack(){
         }
     }
 }
-
+*/
 void set_tasks(int p, int *values, int *weight){
     for(int i = 0; i < p; i++){   
         tasks[i][0] = values[i];
@@ -81,8 +82,8 @@ int** get_solution(){
     int **sol = init_matrix(2, parts);
     int i = capacity-1;
     for(int j = parts-1; j >= 0; j--){
-        if(quantity[i][j] != 0){
-            sol[0][j] = j+1;
+        sol[0][j] = j+1;
+        if(quantity[i][j] != 0){        
             sol[1][j] = quantity[i][j];
             i = i - task_weight(j, quantity[i][j]);
         } 
@@ -90,19 +91,22 @@ int** get_solution(){
     return sol;
 }
 
-#define p 3
-//#define p 7
+//#define p 3
+#define p 7
 
 int main(int argc, char *argv[]){
+    /*
     int v[p] = {11, 7, 12};
     int w[p] = {4, 3, 5};
     int cap = 10; 
-    /*int v[p] = {7, 9, 5, 12, 14, 6, 12};
+    */
+    int v[p] = {7, 9, 5, 12, 14, 6, 12};
     int w[p] = {3, 4, 2, 6, 7, 3, 5};
-    int cap = 15; */
+    int cap = 15; 
+    
     // Q, # parts, capacity, values, weight
-    setup_knapsack(5, p, cap, v, w);
-    unbounded_knapsack();
+    setup_knapsack(cap, p, cap, v, w);
+    bounded_knapsack();
     print_matrix(knapsack, capacity, p);
     printf("===== Sol =====\n");
     int **sol = get_solution();
