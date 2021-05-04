@@ -18,7 +18,6 @@ int get_max(Knapsack *self, int i, int j, int k){
     return prev(self, i, j) < new ? new : prev(self, i, j);
 }
 
-// bounded y 1 o 0 
 void bounded_knapsack(Knapsack *self){
     for(int i = 0; i < self->capacity; i++){
         for(int j = 0; j < self->parts; j++){
@@ -27,8 +26,6 @@ void bounded_knapsack(Knapsack *self){
                 if(task_weight(self, j, k) <= i){
                     int t1 = get_max(self, i, j, k);
                     int t2 = self->knapsack[i][j];
-                    //printf("t1: %d t2: %d\n", t1, t2);
-                    //printf("i: %d j: %d k: %d\n",i,j,k);
 
                     if(t1 > t2){
                         self->knapsack[i][j] = t1;
