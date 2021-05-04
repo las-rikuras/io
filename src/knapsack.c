@@ -3,112 +3,109 @@
 #include <stdio.h>
 #include "utilities.c"
 
-int **tasks;
-int **knapsack;
-int **quantity;
-int capacity;
-int Q = 0;
-int parts = 0;
-
-int task_weight(int j, int k){
-    return tasks[j][1] * k;
+int task_weight(Knapsack *self, int j, int k){
+    return self->tasks[1][j] * k;
 }
 
-int prev(int i, int j){
-    return knapsack[i][j - 1];
+int prev(Knapsack *self, int i, int j){
+    return self->knapsack[i][j - 1];
 }
 
-int get_max(int i, int j, int k){ 
-    int v_j = tasks[j][0] * k;
-    int c_j = task_weight(j, k);
-    int new = v_j + knapsack[i-c_j][j-1];
-    return prev(i, j) < new ? new : prev(i, j);
+int get_max(Knapsack *self, int i, int j, int k){ 
+    int v_j = self->tasks[0][j] * k;
+    int c_j = task_weight(self, j, k);
+    int new = v_j + self->knapsack[i-c_j][j-1];
+    return prev(self, i, j) < new ? new : prev(self, i, j);
 }
 
 // bounded y 1 o 0 
-void bounded_knapsack(){
-    for(int i = 0; i < capacity; i++){
-        for(int j = 0; j < parts; j++){
-            int q = i/tasks[j][1] > Q ? Q : i/tasks[j][1];
+void bounded_knapsack(Knapsack *self){
+    for(int i = 0; i < self->capacity; i++){
+        for(int j = 0; j < self->parts; j++){
+            int q = i/self->tasks[1][j] > self->Q ? self->Q : i/self->tasks[1][j];
             for(int k = 0; k <= q; k++){
-                if(task_weight(j, k) <= i){
-                    int t1 = get_max(i, j, k);
-                    int t2 = knapsack[i][j];
+                if(task_weight(self, j, k) <= i){
+                    int t1 = get_max(self, i, j, k);
+                    int t2 = self->knapsack[i][j];
+                    //printf("t1: %d t2: %d\n", t1, t2);
+                    //printf("i: %d j: %d k: %d\n",i,j,k);
+
                     if(t1 > t2){
-                        knapsack[i][j] = t1;
-                        quantity[i][j] = k;
+                        self->knapsack[i][j] = t1;
+                        self->quantity[i][j] = k;
                     } 
                 } 
             }   
         }
     }
 }
-/*
-void unbounded_knapsack(){ 
-    for(int i = 0; i < capacity; i++){
-        for(int j = 0; j < parts; j++){
-            int k = 0;
-            while(task_weight(j, k) <= i){
-                int t1 = get_max(i, j, k);
-                int t2 = knapsack[i][j];
-                if(t1 > t2){
-                    knapsack[i][j] = t1;
-                    quantity[i][j] = k;
-                }
-                k++; 
-            }
-        }
-    }
-}
-*/
-void set_tasks(int p, int *values, int *weight){
+
+void setup_knapsack(Knapsack *self, int max, int p, int c, int *v, int *w){
+    self->Q = max;
+    self->capacity = c + 1;
+    self->parts = p;
+    self->tasks = init_matrix(p, 2);
+    self->knapsack = init_matrix(self->capacity, p);
+    self->quantity = init_matrix(self->capacity, p);
+    
     for(int i = 0; i < p; i++){   
-        tasks[i][0] = values[i];
-        tasks[i][1] = weight[i];
+        self->tasks[0][i] = v[i];
+        self->tasks[1][i] = w[i];
     }
 }
 
-void setup_knapsack(int max, int p, int c, int *v, int *w){
-    Q = max;
-    capacity = c + 1;
-    parts = p;
-    tasks = init_matrix(p, 2);
-    knapsack = init_matrix(capacity, p);
-    quantity = init_matrix(capacity, p);
-    set_tasks(p, v, w);
+void setup_knapsack_from_file(Knapsack *self){
+    self->capacity = self->capacity + 1;
+    self->knapsack = init_matrix(self->capacity, self->parts);
+    self->quantity = init_matrix(self->capacity, self->parts);
 }
 
-int** get_solution(){
-    int **sol = init_matrix(2, parts);
-    int i = capacity-1;
-    for(int j = parts-1; j >= 0; j--){
+int** get_solution(Knapsack *self){
+    int **sol = init_matrix(2, self->parts);
+    int i = self->capacity-1;
+    for(int j = self->parts-1; j >= 0; j--){
         sol[0][j] = j+1;
-        if(quantity[i][j] != 0){        
-            sol[1][j] = quantity[i][j];
-            i = i - task_weight(j, quantity[i][j]);
+        if(self->quantity[i][j] != 0){        
+            sol[1][j] = self->quantity[i][j];
+            i = i - task_weight(self, i, self->quantity[i][j]);
         } 
     }
     return sol;
 }
 
-//#define p 3
-#define p 7
+#define p 3
+//#define p 7
 
 int main(int argc, char *argv[]){
+    // from file 
+    Knapsack *K = load_knapsack("chirripo.kn");
+    setup_knapsack_from_file(K);
+
+    // from interface
     /*
     int v[p] = {11, 7, 12};
     int w[p] = {4, 3, 5};
     int cap = 10; 
-    */
+    
     int v[p] = {7, 9, 5, 12, 14, 6, 12};
     int w[p] = {3, 4, 2, 6, 7, 3, 5};
     int cap = 15; 
-    
-    // Q, # parts, capacity, values, weight
-    setup_knapsack(cap, p, cap, v, w);
-    bounded_knapsack();
-    print_matrix(knapsack, capacity, p);
+    Knapsack *K = (Knapsack*)calloc(1,sizeof(Knapsack));
+    setup_knapsack(K, cap, p, cap, v, w);
+    */
+
+
+    // ===================
+    printf("Parts: %d\n", K->parts);
+    printf("Capacity: %d\n", K->capacity);
+    printf("Max: %d\n", K->Q);
+    printf("===== Parts =====\n");
+    print_matrix(K->tasks, 2, K->parts); 
+    bounded_knapsack(K); 
+    printf("===== Knapsack =====\n");
+    print_matrix(K->knapsack, K->capacity, K->parts);
     printf("===== Sol =====\n");
-    int **sol = get_solution();
-    print_matrix(sol, 2, parts);
+    int **sol = get_solution(K);
+    print_matrix(sol, 2, K->parts);
+    save_knapsack("chirripo", K);
 }
