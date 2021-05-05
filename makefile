@@ -1,7 +1,7 @@
 # make NAME=main
 TARGET=$(NAME)
 
-CCFLAGS=-g -O0 -pthread -pipe -lm
+CCFLAGS=-g -O0 -pthread -pipe
 
 GTK=`pkg-config --cflags --libs gtk+-3.0`
 

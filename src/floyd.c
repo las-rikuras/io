@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <gtk/gtk.h>
-#include <math.h>
 #include "floyd_util.c"
 
 /* Prints D(x) table */
