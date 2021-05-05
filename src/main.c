@@ -39,28 +39,18 @@ void on_exit_clicked(){
     gtk_main_quit();
 }
 
-void* callpending(void *arg);
-
 void on_floyd_clicked(){
-    pthread_t thread;
-    pthread_create(&thread, NULL, &callpending, NULL);
+    system("./pending &");
 }
 
 void on_knapsack_clicked(){
-    pthread_t thread;
-    pthread_create(&thread, NULL, &callpending, NULL);
+    system("./pending &");
 }
 
 void on_replacement_clicked(){
-    pthread_t thread;
-    pthread_create(&thread, NULL, &callpending, NULL);
+    system("./pending &");
 }
 
 void on_series_clicked(){
-    pthread_t thread; //
-    pthread_create(&thread, NULL, &callpending, NULL);
-}
-
-void* callpending(void *arg){
-    system("./pending");
+    system("./pending &");    
 }
