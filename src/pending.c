@@ -18,3 +18,7 @@ int main(int argc, char *argv[]){
 void on_pending_destroy(){
     gtk_main_quit();
 }
+
+void on_close_clicked(){
+    gtk_main_quit();
+}
