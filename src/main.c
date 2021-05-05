@@ -40,10 +40,11 @@ void on_exit_clicked(){
 }
 
 void* callpending(void *arg);
+void* callFloyd(void *arg);
 
 void on_floyd_clicked(){
     pthread_t thread;
-    pthread_create(&thread, NULL, &callpending, NULL);
+    pthread_create(&thread, NULL, &callFloyd, NULL);
 }
 
 void on_knapsack_clicked(){
@@ -63,4 +64,8 @@ void on_series_clicked(){
 
 void* callpending(void *arg){
     system("./pending");
+}
+
+void* callFloyd(void *arg){
+    system("./floyd");
 }
