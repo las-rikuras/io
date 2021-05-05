@@ -74,7 +74,10 @@ int save_knapsack(char *file_name, Knapsack *K){
 }
 
 Knapsack* load_knapsack(char *file_name){
-    FILE * fp = fopen(file_name, "r");
+    char *fn = malloc((strlen(file_name) + 5));
+    strcpy(fn, file_name);
+    strcat(fn, ".fd");
+    FILE *fp = fopen(fn, "r");
     if (fp == NULL){
         printf("File doesn't exits\n");
         exit(1);

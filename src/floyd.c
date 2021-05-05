@@ -1,17 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <gtk/gtk.h>
-
-typedef struct value_struct {
-    int is_infinite;
-    int value;
-} Value;
-
-typedef struct floyd_struct {
-    Value ****D;
-    int ***P;
-    int n;
-} Floyd;
+#include <math.h>
+#include "floyd_util.c"
 
 /* Prints D(x) table */
 void print_D(Floyd *attr, int x){
@@ -82,6 +73,7 @@ int init_floyd(Floyd *attr, Value ***d_0, int n){
             }
         }
     }
+
     copy_D_table(attr->D[0], d_0, n);
 
     int ***p = (int***)calloc(n, sizeof(int**));
@@ -203,7 +195,7 @@ void on_exit_clicked(){
 }
 
 int main(int argc, char *argv[]){
-    GtkBuilder *builder;
+   /* GtkBuilder *builder;
     GtkWidget *window;
     GtkWidget *nodes_number;
     GtkWidget *next_button;
@@ -227,9 +219,10 @@ int main(int argc, char *argv[]){
 
     g_object_unref(builder);
     gtk_widget_show(window);
-    gtk_main();
+    gtk_main(); */
 
-    /* int n = 3;
+    /*
+    int n = 3;
     
     Value ***d_0 = (Value***)calloc(n, sizeof(Value*));
     for(int i = 0; i < n; i++){
@@ -251,11 +244,13 @@ int main(int argc, char *argv[]){
 
     Floyd *E = (Floyd*)calloc(1,sizeof(Floyd));
 
-    init_floyd(E, d_0, n);
+    init_floyd(E, d_0, n); */
 
-    //print_floyd(E);
-
-    floyd(E); */
+    Floyd *E = load_floyd("floyd");
+    floyd(E);
+    //Floyd *E = (Floyd*)calloc(1,sizeof(Floyd));
+    //save_floyd("floyd", E);
+    //floyd(E); 
 
     return 0;
 }

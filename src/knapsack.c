@@ -1,7 +1,7 @@
 #include <gtk/gtk.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "utilities.c"
+#include "knap_util.c"
 
 int task_weight(Knapsack *self, int j, int k){
     return self->tasks[1][j] * k;
