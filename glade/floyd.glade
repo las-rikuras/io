@@ -4,7 +4,7 @@
   <requires lib="gtk+" version="3.24"/>
   <object class="GtkAdjustment" id="nodesAdjustment">
     <property name="lower">1</property>
-    <property name="upper">50</property>
+    <property name="upper">26</property>
     <property name="value">1</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
@@ -242,15 +242,33 @@
                                 <property name="can-focus">False</property>
                                 <property name="halign">start</property>
                                 <property name="valign">start</property>
+                                <property name="margin-end">14</property>
+                                <property name="margin-bottom">14</property>
+                                <property name="row-spacing">2</property>
+                                <property name="column-spacing">2</property>
                                 <property name="row-homogeneous">True</property>
                                 <property name="column-homogeneous">True</property>
                                 <child>
-                                  <object class="GtkEntry">
+                                  <object class="GtkLabel">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="label" translatable="yes">0</property>
+                                    <property name="width-chars">3</property>
+                                    <property name="xalign">0.5</property>
+                                    <property name="yalign">0.5</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left-attach">1</property>
+                                    <property name="top-attach">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkEntry" id="A1">
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="width-chars">2</property>
-                                    <property name="max-width-chars">2</property>
-                                    <property name="text" translatable="yes">A</property>
+                                    <property name="max-width-chars">3</property>
+                                    <property name="xalign">0.5</property>
                                     <property name="placeholder-text" translatable="yes">A</property>
                                   </object>
                                   <packing>
@@ -259,32 +277,16 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkEntry">
+                                  <object class="GtkEntry" id="A2">
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="width-chars">2</property>
-                                    <property name="max-width-chars">2</property>
-                                    <property name="text" translatable="yes">A</property>
+                                    <property name="max-width-chars">3</property>
+                                    <property name="xalign">0.5</property>
                                     <property name="placeholder-text" translatable="yes">A</property>
                                   </object>
                                   <packing>
                                     <property name="left-attach">0</property>
-                                    <property name="top-attach">1</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkEntry">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
-                                    <property name="editable">False</property>
-                                    <property name="width-chars">2</property>
-                                    <property name="max-width-chars">2</property>
-                                    <property name="text" translatable="yes">0</property>
-                                    <property name="placeholder-text" translatable="yes">0</property>
-                                    <property name="input-purpose">number</property>
-                                  </object>
-                                  <packing>
-                                    <property name="left-attach">1</property>
                                     <property name="top-attach">1</property>
                                   </packing>
                                 </child>
@@ -303,12 +305,15 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="next">
-                        <property name="label" translatable="yes">button</property>
+                        <property name="label">gtk-media-next</property>
                         <property name="width-request">100</property>
                         <property name="height-request">80</property>
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
+                        <property name="use-stock">True</property>
+                        <property name="image-position">bottom</property>
+                        <property name="always-show-image">True</property>
                       </object>
                       <packing>
                         <property name="x">332</property>
@@ -317,12 +322,14 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="previous">
-                        <property name="label" translatable="yes">button</property>
+                        <property name="label">gtk-media-previous</property>
                         <property name="width-request">100</property>
                         <property name="height-request">80</property>
-                        <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
+                        <property name="use-stock">True</property>
+                        <property name="image-position">bottom</property>
+                        <property name="always-show-image">True</property>
                       </object>
                       <packing>
                         <property name="x">40</property>
