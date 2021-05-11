@@ -5,7 +5,7 @@ CCFLAGS=-g -O0 -pthread -pipe
 
 GTK=`pkg-config --cflags --libs gtk+-3.0`
 
-LDFLAGS=-pthread $(GTK) -export-dynamic
+LDFLAGS=-pthread $(GTK) -export-dynamic 
 
 OBJS= $(NAME).o
 

@@ -11,8 +11,8 @@
   </object>
   <object class="GtkWindow" id="window">
     <property name="can_focus">False</property>
-    <property name="default_width">400</property>
-    <property name="default_height">400</property>
+    <property name="default_width">500</property>
+    <property name="default_height">500</property>
     <signal name="destroy" handler="on_window_destroy" swapped="no"/>
     <child>
       <object class="GtkGrid">
@@ -36,6 +36,7 @@
             <property name="can_focus">False</property>
             <property name="hexpand">True</property>
             <property name="vexpand">True</property>
+            <signal name="draw" handler="on_drawing_area_draw" swapped="no"/>
           </object>
           <packing>
             <property name="left_attach">0</property>
