@@ -68,7 +68,6 @@ int save_knapsack(char *file_name, Knapsack *K){
         }
         fprintf(fp, "\n");      
     }
-
     fclose(fp);
     return 0;
 }

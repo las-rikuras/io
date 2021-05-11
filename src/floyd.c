@@ -243,13 +243,26 @@ int main(int argc, char *argv[]){
 
     Floyd *E = (Floyd*)calloc(1,sizeof(Floyd));
 
-    init_floyd(E, d_0, n); */
+    E->L = malloc(n * sizeof(char*));
+    
+    char* val = "Label";
+    for(int i = 0; i < n; i++){        
+        E->L[i] = malloc((sizeof(val) + 1) * sizeof(char));
+        strcpy(E->L[i], val);
+    }
+
+    init_floyd(E, d_0, n);  */
 
     Floyd *E = load_floyd("floyd");
-    floyd(E);
+    floyd(E); 
+
+    for(int i =0; i < E->n; i++){
+        printf("%s ", E->L[i]);
+    }
+
     //Floyd *E = (Floyd*)calloc(1,sizeof(Floyd));
-    //save_floyd("floyd", E);
-    //floyd(E); 
+    //save_floyd("floyd2", E); 
+    //floyd(E);
 
     return 0;
 }
