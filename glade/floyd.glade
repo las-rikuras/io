@@ -316,8 +316,8 @@
                         <property name="always-show-image">True</property>
                       </object>
                       <packing>
-                        <property name="x">332</property>
-                        <property name="y">533</property>
+                        <property name="x">142</property>
+                        <property name="y">530</property>
                       </packing>
                     </child>
                     <child>

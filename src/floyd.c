@@ -65,26 +65,42 @@ void copy_P_table(int **p_x, int **p_y, int n){
     }
 }
 
-/* Inits the strutc used for the main program */
-int init_floyd(Floyd *attr, Value ***d_0, int n){
-    attr->n = n;
-    attr->D = (Value****)calloc(n, sizeof(Value**));
-    for(int i = 0; i <= n; i++){
-        attr->D[i] = (Value***)calloc(n, sizeof(Value*));
+/* void free_floyd(Floyd *f){
+    for(int i = 0; i <= f->n; i++){
         for(int j = 0; j < n; j++){
-            attr->D[i][j] = (Value**)calloc(n, sizeof(Value));
+            attr->D[i][j] = (Value**)calloc(n, sizeof(Value*));
             for(int k = 0; k < n; k++){
                 Value *temp = (Value*)calloc(1, sizeof(Value));
                 temp->is_infinite = 0;
                 temp->value = 0;
                 attr->D[i][j][k] = temp;
             }
-        }
+        } 
+        free(f->D[i]);
     }
+    free(f->D);
+} */
 
+/* Inits the strutc used for the main program */
+int init_floyd(Floyd *attr, Value ***d_0, int n){
+    attr->n = n;
+    attr->D = (Value****)calloc(n+1, sizeof(Value***));
+    for(int i = 0; i <= n; i++){
+        attr->D[i] = (Value***)calloc(n, sizeof(Value**));
+        for(int j = 0; j < n; j++){
+            attr->D[i][j] = (Value**)calloc(n, sizeof(Value*));
+            for(int k = 0; k < n; k++){
+                Value *temp = (Value*)calloc(1, sizeof(Value));
+                temp->is_infinite = 0;
+                temp->value = 0;
+                attr->D[i][j][k] = temp;
+            }
+        } 
+    }
+    
     copy_D_table(attr->D[0], d_0, n);
 
-    int ***p = (int***)calloc(n, sizeof(int**));
+    int ***p = (int***)calloc(n+1, sizeof(int**));
     for(int i = 0; i <= n; i++){
         p[i] = (int**)calloc(n, sizeof(int*));
         for(int j = 0; j < n; j++){
@@ -96,6 +112,8 @@ int init_floyd(Floyd *attr, Value ***d_0, int n){
     }
     attr->P = p;
 }
+
+
 
 /**/
 void floyd_stepper(Floyd *attr, int k){
@@ -185,7 +203,9 @@ void next (GtkButton *button, gpointer user_data){
     if(!current_d){
         GtkWidget *previous = user_data;
         gtk_widget_show_all(previous);
+        F = (Floyd*)calloc(1,sizeof(Floyd));
         d_0 = (Value***)calloc(max_d, sizeof(Value*));
+        
         for(int i = 0; i < max_d; i++){
             d_0[i] = (Value**)calloc(max_d, sizeof(Value));
             for(int j = 0; j < max_d; j++){
@@ -210,11 +230,12 @@ void next (GtkButton *button, gpointer user_data){
     }
     current_d++;
     char str[5];
+    sprintf(str, "D(%d)", current_d);
     gtk_label_set_text(GTK_LABEL(D_label), str);
 
     floyd_stepper(F, current_d);
     load_d(F,grid,current_d);
-    print_D(F, current_d);
+    //print_D(F, current_d);
 
     if(current_d == max_d){
         gtk_widget_hide(GTK_WIDGET(button));
@@ -229,9 +250,12 @@ void previous (GtkButton *button, gpointer user_data){
     current_d--;
     char str[5];
     sprintf(str, "D(%d)", current_d);
+    load_d(F, grid, current_d);
     gtk_label_set_text(GTK_LABEL(D_label), str);
     if(!current_d){
         gtk_widget_hide(GTK_WIDGET(button));
+        free(F);
+        free(d_0);
     }
 }
 
@@ -371,7 +395,6 @@ int main(int argc, char *argv[]){
     spin_data.grid = grid;
     spin_data.last_value = 1;
 
-    F = (Floyd*)calloc(1,sizeof(Floyd));
 
     g_signal_connect(nodes_number, "value-changed", G_CALLBACK (spin_clicked), &spin_data);
     g_signal_connect(next_button, "clicked", G_CALLBACK (next), previous_button);

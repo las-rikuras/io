@@ -265,7 +265,7 @@
                                 <child>
                                   <object class="GtkEntry" id="A1">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
+                                    <property name="can-focus">True</property>
                                     <property name="width-chars">2</property>
                                     <property name="max-width-chars">3</property>
                                     <property name="xalign">0.5</property>
@@ -279,7 +279,7 @@
                                 <child>
                                   <object class="GtkEntry" id="A2">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
+                                    <property name="can-focus">True</property>
                                     <property name="width-chars">2</property>
                                     <property name="max-width-chars">3</property>
                                     <property name="xalign">0.5</property>
