@@ -15,6 +15,11 @@ typedef struct floyd_struct {
     int n;
 } Floyd;
 
+typedef struct position {
+    double x;
+    double y;
+} Position;
+
 int save_floyd(char *file_name, Floyd *F){
     char *fn = malloc((strlen(file_name) + 5));
     strcpy(fn, file_name);
