@@ -270,6 +270,7 @@ void load_p(Floyd *f, GtkWidget *grid, int k){
 void next(GtkButton *button, gpointer user_data){
     if(!current_d){
         gtk_widget_set_sensitive(nodes_number, 0);
+        gtk_widget_set_sensitive(load, 0);
         GtkWidget *previous = user_data;
         pauseDraw = 1;
         gtk_widget_set_sensitive(previous, 1);
@@ -337,6 +338,7 @@ void previous (GtkButton *button, gpointer user_data){
         GtkWidget *next= user_data;
         gtk_widget_set_sensitive(next, 1);
     }
+
     current_d--;
     char str[5];
     sprintf(str, "D(%d)", current_d);
@@ -357,7 +359,8 @@ void previous (GtkButton *button, gpointer user_data){
         gtk_widget_set_sensitive(GTK_WIDGET(button), 0);
         free(F);
         free(d_0);
-    }
+        gtk_widget_set_sensitive(load, 1);
+    }  
 }
 
 void insert_text_event(GtkEditable *editable, const gchar *text, gint length, gint *position, gpointer data){
