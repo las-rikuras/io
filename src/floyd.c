@@ -19,8 +19,10 @@ GtkWidget *dialog;
 GtkWidget *start;
 GtkWidget *final;
 GtkWidget *route_lable;
+GtkWidget *nodes_number;
+int pauseDraw;
 
-void route (GtkComboBox *widget, gpointer user_data);
+void route (GtkButton*widget, gpointer user_data);
 
 /* Prints D(x) table */
 void print_D(Floyd *attr, int x){
@@ -122,7 +124,6 @@ int init_floyd(Floyd *attr, Value ***d_0, int n){
     }
     attr->P = p;
 }
-
 
 /**/
 void floyd_stepper(Floyd *attr, int k){
@@ -265,11 +266,12 @@ void load_p(Floyd *f, GtkWidget *grid, int k){
 
 void next(GtkButton *button, gpointer user_data){
     if(!current_d){
+        gtk_widget_set_sensitive(nodes_number, 0);
         GtkWidget *previous = user_data;
+        pauseDraw = 1;
         gtk_widget_set_sensitive(previous, 1);
         F = (Floyd*)calloc(1,sizeof(Floyd));
         d_0 = (Value***)calloc(max_d, sizeof(Value*));
-        
         for(int i = 0; i < max_d; i++){
             d_0[i] = (Value**)calloc(max_d, sizeof(Value));
             for(int j = 0; j < max_d; j++){
@@ -291,6 +293,14 @@ void next(GtkButton *button, gpointer user_data){
             }
         }
         init_floyd(F,d_0, max_d);
+        for(int i = 0; i <= max_d; i++){
+            for(int j = 0; j <= max_d; j++){
+                if(i!=j){
+                    GtkWidget *w = gtk_grid_get_child_at(GTK_GRID(grid), j, i);
+                    gtk_widget_set_sensitive(w, 0);
+                }
+            }
+        }
     }
     current_d++;
     char str[5];
@@ -312,8 +322,6 @@ void next(GtkButton *button, gpointer user_data){
             gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT(final), &id, text);
             gtk_combo_box_set_active(GTK_COMBO_BOX(start), 0);
             gtk_combo_box_set_active(GTK_COMBO_BOX(final), 0);
-            g_signal_connect_after(start, "changed", G_CALLBACK (route), NULL);
-            g_signal_connect_after(final, "changed", G_CALLBACK (route), NULL);
         }
         gtk_dialog_run(GTK_DIALOG(dialog));
     }
@@ -333,6 +341,16 @@ void previous (GtkButton *button, gpointer user_data){
     load_p(F, grid, current_d);
     gtk_label_set_text(GTK_LABEL(D_label), str);
     if(!current_d){
+        for(int i = 0; i <= max_d; i++){
+            for(int j = 0; j <= max_d; j++){
+                if(i!=j){
+                    GtkWidget *w = gtk_grid_get_child_at(GTK_GRID(grid), j, i);
+                    gtk_widget_set_sensitive(w, 1);
+                }
+            }
+        }
+        pauseDraw = 0;
+        gtk_widget_set_sensitive(nodes_number, 1);
         gtk_widget_set_sensitive(GTK_WIDGET(button), 0);
         free(F);
         free(d_0);
@@ -361,11 +379,11 @@ void change_label(GtkEditable *editable, gpointer data){
     const char *text = gtk_entry_get_text(GTK_ENTRY(editable));
     gtk_entry_set_text(GTK_ENTRY(entry), text);
     gtk_entry_set_text(GTK_ENTRY(label), text);
+    gtk_widget_queue_draw(drawing_area);
 }
 
 void entry_changed(GtkEditable *editable, gpointer data){
-    GtkWidget* grid = data;
-    
+    gtk_widget_queue_draw(drawing_area);
 }
 
 void insertEntry(GtkWidget *grid, int i, int j, int val){
@@ -430,111 +448,217 @@ void insertLabel(GtkWidget *grid, int i, int j){
 }
 
 void on_drawing_area_draw(GtkWidget *widget, cairo_t *cr, gpointer data){
-    GtkWidget* spinner = data;
-    int spinner_num = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spinner));
-    guint width, height;
-    GdkRGBA color;
-    GtkStyleContext *context;
+    if(!pauseDraw){
+        GtkWidget* spinner = data;
+        int spinner_num = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spinner));
+        guint width, height;
+        GdkRGBA color;
+        GtkStyleContext *context;
 
-    context = gtk_widget_get_style_context (widget);
-    width = 543;
-    height = 543;
-    
-    double x, y;
-    double ang = 0;
-    double radius = 50*spinner_num;
-    double node_r = 20;
-
-    if(((2*radius + 2*node_r)*scale) > width){
-        int new_width = ((2*radius + 2*node_r)+20)*scale;
-        width = height = new_width;
-        gtk_widget_set_size_request(widget, new_width, new_width);
-    }
-    else{
-        gtk_widget_set_size_request(widget, 543, 543);
-    }
-
-    gtk_render_background(context, cr, 0, 0, width-1, width-1);
-    
-    x = y = width/2;
-    positions = (Position**)calloc(spinner_num, sizeof(Position*));
-    if(spinner_num == 1){
-        Position *pos = (Position*)calloc(1, sizeof(Position*));
-        pos->x = width/2;
-        pos->y = width/2;
-        cairo_arc (cr, width/2, height/2, node_r*scale, 0, 2 * G_PI);
-        positions[0] = pos;
-    }
-    else{
-        for(int i = 0; i < spinner_num; i++){
-            Position *pos = (Position*)calloc(1, sizeof(Position*));
-            y = (radius * sin(ang))*scale + width/2;
-            x = (radius * cos(ang))*scale + height/2;
-            pos->y = y;
-            pos->x = x;
-            positions[i] = pos;
-            ang += 2*G_PI/spinner_num;
-        } 
+        context = gtk_widget_get_style_context (widget);
+        width = 543;
+        height = 543;
         
-        cairo_set_line_width(cr, 2*scale);
-        for(int i = 1; i <= max_d; i++){
-            for(int j = 1; j <= max_d; j++){
-                if(i != j){
-                    GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(grid), j, i);
-                    const char *val = gtk_entry_get_text(GTK_ENTRY(entry));
-                        
-                    if(val[0] != 0){
-                        double fas = node_r*scale/2;
-                        if(i < j){
-                            cairo_move_to(cr, positions[i-1]->y-fas, positions[i-1]->x-fas);
-                            cairo_line_to(cr, positions[j-1]->y-fas, positions[j-1]->x-fas);
+        double x, y;
+        double ang = 0;
+        double radius = 50*spinner_num;
+        double node_r = 20;
+
+        if(((2*radius + 2*node_r)*scale) > width){
+            int new_width = ((2*radius + 2*node_r)+20)*scale;
+            width = height = new_width;
+            gtk_widget_set_size_request(widget, new_width, new_width);
+        }
+        else{
+            gtk_widget_set_size_request(widget, 543, 543);
+        }
+
+        gtk_render_background(context, cr, 0, 0, width-1, width-1);
+        
+        x = y = width/2;
+        positions = (Position**)calloc(spinner_num, sizeof(Position*));
+        if(spinner_num == 1){
+            Position *pos = (Position*)calloc(1, sizeof(Position*));
+            pos->x = width/2;
+            pos->y = width/2;
+            cairo_arc (cr, width/2, height/2, node_r*scale, 0, 2 * G_PI);
+            positions[0] = pos;
+        }
+        else{
+            for(int i = 0; i < spinner_num; i++){
+                Position *pos = (Position*)calloc(1, sizeof(Position*));
+                y = (radius * sin(ang))*scale + width/2;
+                x = (radius * cos(ang))*scale + height/2;
+                pos->y = y;
+                pos->x = x;
+                positions[i] = pos;
+                ang += 2*G_PI/spinner_num;
+            } 
+            
+            cairo_set_line_width(cr, 2*scale);
+            for(int i = 1; i <= max_d; i++){
+                for(int j = 1; j <= max_d; j++){
+                    if(i != j){
+                        GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(grid), j, i);
+                        const char *val = gtk_entry_get_text(GTK_ENTRY(entry));
+                            
+                        if(val[0] != 0){
+                            double fas = node_r*scale/2;
+                            if(i < j){
+                                cairo_move_to(cr, positions[i-1]->y-fas, positions[i-1]->x-fas);
+                                cairo_line_to(cr, positions[j-1]->y-fas, positions[j-1]->x-fas);
+                            }
+                            else{
+                                cairo_move_to(cr, positions[i-1]->y+fas, positions[i-1]->x+fas);
+                                cairo_line_to(cr, positions[j-1]->y+fas, positions[j-1]->x+fas);
+                            }
+                            cairo_close_path(cr);
+                            cairo_stroke(cr);
+                            cairo_save(cr);
+                            cairo_restore(cr);
                         }
-                        else{
-                            cairo_move_to(cr, positions[i-1]->y+fas, positions[i-1]->x+fas);
-                            cairo_line_to(cr, positions[j-1]->y+fas, positions[j-1]->x+fas);
-                        }
-                        cairo_close_path(cr);
-                        cairo_stroke(cr);
-                        cairo_save(cr);
-                        cairo_restore(cr);
                     }
                 }
             }
+            ang = 0;
+            for(int i = 0; i < spinner_num; i++){
+                y = (radius * sin(ang))*scale + width/2;
+                x = (radius * cos(ang))*scale + height/2;
+
+                cairo_save(cr);
+                cairo_arc(cr, y, x, node_r*scale, 0, 2*G_PI);
+                cairo_set_source_rgba(cr, 1, 1, 1, 1); 
+                cairo_fill_preserve(cr);
+                cairo_restore(cr); 
+
+                cairo_save(cr);
+                GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(grid), 0, i+1);
+                const char *label = gtk_entry_get_text(GTK_ENTRY(entry));
+                cairo_move_to(cr, y-node_r*scale/4, x+node_r*scale/4);
+                cairo_set_font_size (cr, 20*scale);
+                cairo_set_source_rgb (cr, 1, 0.27, 0);
+                if(label[0] != 0){
+                    cairo_show_text(cr, label);
+                }
+                else{
+                    const char * placeholder = gtk_entry_get_placeholder_text(GTK_ENTRY(entry));
+                    cairo_show_text(cr, placeholder);
+                }
+                ang += 2*G_PI/spinner_num;
+                cairo_restore(cr);
+                cairo_stroke(cr);
+            } 
         }
-        ang = 0;
-        for(int i = 0; i < spinner_num; i++){
-            y = (radius * sin(ang))*scale + width/2;
-            x = (radius * cos(ang))*scale + height/2;
 
-            cairo_save(cr);
-            cairo_arc(cr, y, x, node_r*scale, 0, 2*G_PI);
-            cairo_set_source_rgba(cr, 1, 1, 1, 1); 
-            cairo_fill_preserve(cr);
-            cairo_restore(cr); 
-
-            cairo_save(cr);
-            GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(grid), 0, i+1);
-            const char *label = gtk_entry_get_text(GTK_ENTRY(entry));
-            cairo_move_to(cr, y-node_r*scale/4, x+node_r*scale/4);
-            cairo_set_font_size (cr, 20*scale);
-            cairo_set_source_rgb (cr, 1, 0.27, 0);
-            if(label[0] != 0){
-                cairo_show_text(cr, label);
-            }
-            else{
-                const char * placeholder = gtk_entry_get_placeholder_text(GTK_ENTRY(entry));
-                cairo_show_text(cr, placeholder);
-            }
-            ang += 2*G_PI/spinner_num;
-            cairo_restore(cr);
-            cairo_stroke(cr);
-        } 
+        gtk_style_context_get_color (context, gtk_style_context_get_state (context), &color);
+        gdk_cairo_set_source_rgba (cr, &color);
+        gdk_cairo_set_source_rgba (cr, &color);
+        cairo_fill (cr);
     }
+    else{
+        GtkWidget* spinner = data;
+        int spinner_num = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spinner));
+        guint width, height;
+        GdkRGBA color;
+        GtkStyleContext *context;
 
-    gtk_style_context_get_color (context, gtk_style_context_get_state (context), &color);
-    gdk_cairo_set_source_rgba (cr, &color);
-    gdk_cairo_set_source_rgba (cr, &color);
-    cairo_fill (cr);
+        context = gtk_widget_get_style_context (widget);
+        width = 543;
+        height = 543;
+        
+        double x, y;
+        double ang = 0;
+        double radius = 50*spinner_num;
+        double node_r = 20;
+
+        if(((2*radius + 2*node_r)*scale) > width){
+            int new_width = ((2*radius + 2*node_r)+20)*scale;
+            width = height = new_width;
+            gtk_widget_set_size_request(widget, new_width, new_width);
+        }
+        else{
+            gtk_widget_set_size_request(widget, 543, 543);
+        }
+
+        gtk_render_background(context, cr, 0, 0, width-1, width-1);
+        
+        x = y = width/2;
+        positions = (Position**)calloc(spinner_num, sizeof(Position*));
+        if(spinner_num == 1){
+            Position *pos = (Position*)calloc(1, sizeof(Position*));
+            pos->x = width/2;
+            pos->y = width/2;
+            cairo_arc (cr, width/2, height/2, node_r*scale, 0, 2 * G_PI);
+            positions[0] = pos;
+        }
+        else{
+            for(int i = 0; i < spinner_num; i++){
+                Position *pos = (Position*)calloc(1, sizeof(Position*));
+                y = (radius * sin(ang))*scale + width/2;
+                x = (radius * cos(ang))*scale + height/2;
+                pos->y = y;
+                pos->x = x;
+                positions[i] = pos;
+                ang += 2*G_PI/spinner_num;
+            } 
+            
+            cairo_set_line_width(cr, 2*scale);
+            for(int i = 1; i <= max_d; i++){
+                for(int j = 1; j <= max_d; j++){
+                    if(i != j){                           
+                        if(!(F->D[0][i-1][j-1]->is_infinite)){
+                            double fas = node_r*scale/2;
+                            if(i < j){
+                                cairo_move_to(cr, positions[i-1]->y-fas, positions[i-1]->x-fas);
+                                cairo_line_to(cr, positions[j-1]->y-fas, positions[j-1]->x-fas);
+                            }
+                            else{
+                                cairo_move_to(cr, positions[i-1]->y+fas, positions[i-1]->x+fas);
+                                cairo_line_to(cr, positions[j-1]->y+fas, positions[j-1]->x+fas);
+                            }
+                            cairo_close_path(cr);
+                            cairo_stroke(cr);
+                            cairo_save(cr);
+                            cairo_restore(cr);
+                        }
+                    }
+                }
+            }
+            ang = 0;
+            for(int i = 0; i < spinner_num; i++){
+                y = (radius * sin(ang))*scale + width/2;
+                x = (radius * cos(ang))*scale + height/2;
+
+                cairo_save(cr);
+                cairo_arc(cr, y, x, node_r*scale, 0, 2*G_PI);
+                cairo_set_source_rgba(cr, 1, 1, 1, 1); 
+                cairo_fill_preserve(cr);
+                cairo_restore(cr); 
+
+                cairo_save(cr);
+                GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(grid), 0, i+1);
+                const char *label = gtk_entry_get_text(GTK_ENTRY(entry));
+                cairo_move_to(cr, y-node_r*scale/4, x+node_r*scale/4);
+                cairo_set_font_size (cr, 20*scale);
+                cairo_set_source_rgb (cr, 1, 0.27, 0);
+                if(label[0] != 0){
+                    cairo_show_text(cr, label);
+                }
+                else{
+                    const char * placeholder = gtk_entry_get_placeholder_text(GTK_ENTRY(entry));
+                    cairo_show_text(cr, placeholder);
+                }
+                ang += 2*G_PI/spinner_num;
+                cairo_restore(cr);
+                cairo_stroke(cr);
+            } 
+        }
+
+        gtk_style_context_get_color (context, gtk_style_context_get_state (context), &color);
+        gdk_cairo_set_source_rgba (cr, &color);
+        gdk_cairo_set_source_rgba (cr, &color);
+        cairo_fill (cr);
+    }
 }
 
 void spin_clicked (GtkSpinButton *spinbutton, gpointer data){
@@ -595,9 +719,11 @@ void close_dialog(GtkButton *button, gpointer user_data){
 
 void on_response (GtkDialog *di, gint esponse_id,gpointer user_data){
     gtk_widget_hide(GTK_WIDGET(di));
+    gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(start));
+    gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(final));
 }
 
-void route (GtkComboBox *widget, gpointer user_data){
+void route (GtkButton *button, gpointer user_data){
     const char *first = gtk_combo_box_get_active_id(GTK_COMBO_BOX(start));
     int id1 = first[0];
     const char *end = gtk_combo_box_get_active_id(GTK_COMBO_BOX(final));
@@ -620,7 +746,6 @@ void route (GtkComboBox *widget, gpointer user_data){
 
 int main(int argc, char *argv[]){
     GtkWidget *window;
-    GtkWidget *nodes_number;
     GtkWidget *next_button;
     GtkWidget *previous_button;
     GtkWidget *A1;
@@ -652,6 +777,7 @@ int main(int argc, char *argv[]){
     struct spin_data spin_data;
     spin_data.grid = grid;
     spin_data.last_value = 1;
+    pauseDraw = 0;
 
     g_signal_connect(nodes_number, "value-changed", G_CALLBACK (spin_clicked), &spin_data);
     g_signal_connect(next_button, "clicked", G_CALLBACK (next), previous_button);
