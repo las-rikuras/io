@@ -89,7 +89,9 @@ The algorithm finds the maximum value in which the sum of the weights is equal o
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
-            <property name="tooltip_text" translatable="yes">Algorithm to determine when it is best to make an equipment change within a defined period of time</property>
+            <property name="tooltip_text" translatable="yes">Algorithm to determine when it is best to make an equipment change within a defined period of time.
+
+The algorithm calculates </property>
             <property name="margin_left">10</property>
             <property name="margin_right">10</property>
             <property name="margin_top">10</property>
