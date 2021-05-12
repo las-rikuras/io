@@ -599,6 +599,7 @@ void on_response (GtkDialog *di, gint esponse_id,gpointer user_data){
     gtk_widget_hide(GTK_WIDGET(di));
 }
 
+const char *last;
 void route (GtkComboBox *widget, gpointer user_data){
     const char *first = gtk_combo_box_get_active_id(GTK_COMBO_BOX(start));
     int id1 = first[0];
@@ -610,7 +611,7 @@ void route (GtkComboBox *widget, gpointer user_data){
         const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
         if(!F->P[max_d][id1-1][id2-1]){
             entry = gtk_grid_get_child_at(GTK_GRID(p_grid), 0, id2);
-            const char *last = gtk_entry_get_text(GTK_ENTRY(entry));
+            last = gtk_entry_get_text(GTK_ENTRY(entry));
             snprintf(buf, sizeof buf, "%s->%s", text, last);
             gtk_label_set_text(GTK_LABEL(route_lable), buf);
             break;
@@ -619,6 +620,7 @@ void route (GtkComboBox *widget, gpointer user_data){
         id1 = F->P[max_d][id1-1][id2-1];
     }
 }
+
 void load_labels(Floyd *f, GtkWidget *grid){
     for(int i = 0; i < f->n; i++){
         GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(grid), 0, i+1);
