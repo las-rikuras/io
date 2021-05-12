@@ -4,12 +4,12 @@
 #include <math.h>
 #include "floyd_util.c"
 
+GtkWidget *spinner;
 GtkWidget *window;
 GtkBuilder *builder;
 GtkWidget *grid;
 GtkWidget *D_label;
 GtkWidget *drawing_area;
-GtkWidget *spinner;
 int current_d = 0;
 int max_d = 1;
 Floyd *F;
@@ -591,7 +591,34 @@ void on_exit_clicked(){
     gtk_main_quit();
 }
 
-<<<<<<< HEAD
+void close_dialog(GtkButton *button, gpointer user_data){
+    gtk_dialog_response(GTK_DIALOG(dialog), 0);
+}
+
+void on_response (GtkDialog *di, gint esponse_id,gpointer user_data){
+    gtk_widget_hide(GTK_WIDGET(di));
+}
+
+void route (GtkComboBox *widget, gpointer user_data){
+    const char *first = gtk_combo_box_get_active_id(GTK_COMBO_BOX(start));
+    int id1 = first[0];
+    const char *end = gtk_combo_box_get_active_id(GTK_COMBO_BOX(final));
+    int id2 = end[0];
+    char buf[5000];
+    while(1){
+        GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(p_grid), 0, id1);
+        const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
+        if(!F->P[max_d][id1-1][id2-1]){
+            entry = gtk_grid_get_child_at(GTK_GRID(p_grid), 0, id2);
+            const char *last = gtk_entry_get_text(GTK_ENTRY(entry));
+            snprintf(buf, sizeof buf, "%s->%s", text, last);
+            gtk_label_set_text(GTK_LABEL(route_lable), buf);
+            break;
+        }
+        snprintf(buf, sizeof buf, "%s->", text);
+        id1 = F->P[max_d][id1-1][id2-1];
+    }
+}
 void load_labels(Floyd *f, GtkWidget *grid){
     for(int i = 0; i < f->n; i++){
         GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(grid), 0, i+1);
@@ -688,38 +715,10 @@ void on_save_clicked(){
         free(fn);
     }
     gtk_widget_destroy(dialog);
-=======
-void close_dialog(GtkButton *button, gpointer user_data){
-    gtk_dialog_response(GTK_DIALOG(dialog), 0);
-}
-
-void on_response (GtkDialog *di, gint esponse_id,gpointer user_data){
-    gtk_widget_hide(GTK_WIDGET(di));
-}
-
-void route (GtkComboBox *widget, gpointer user_data){
-    const char *first = gtk_combo_box_get_active_id(GTK_COMBO_BOX(start));
-    int id1 = first[0];
-    const char *end = gtk_combo_box_get_active_id(GTK_COMBO_BOX(final));
-    int id2 = end[0];
-    char buf[5000];
-    while(1){
-        GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(p_grid), 0, id1);
-        const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
-        if(!F->P[max_d][id1-1][id2-1]){
-            entry = gtk_grid_get_child_at(GTK_GRID(p_grid), 0, id2);
-            const char *last = gtk_entry_get_text(GTK_ENTRY(entry));
-            snprintf(buf, sizeof buf, "%s->%s", text, last);
-            gtk_label_set_text(GTK_LABEL(route_lable), buf);
-            break;
-        }
-        snprintf(buf, sizeof buf, "%s->", text);
-        id1 = F->P[max_d][id1-1][id2-1];
-    }
->>>>>>> dennis
 }
 
 int main(int argc, char *argv[]){
+    GtkWidget *window;
     GtkWidget *nodes_number;
     GtkWidget *next_button;
     GtkWidget *previous_button;
@@ -742,13 +741,13 @@ int main(int argc, char *argv[]){
     drawing_area = GTK_WIDGET(gtk_builder_get_object(builder, "drawing_area"));
     zoomin = GTK_WIDGET(gtk_builder_get_object(builder, "zoomin"));
     zoomout = GTK_WIDGET(gtk_builder_get_object(builder, "zoomout"));
-    spinner = GTK_WIDGET(gtk_builder_get_object(builder, "nodes_number"));
     p_grid = GTK_WIDGET(gtk_builder_get_object(builder, "p_grid"));
     dialog = GTK_WIDGET(gtk_builder_get_object(builder, "dialog"));
     close_di = GTK_WIDGET(gtk_builder_get_object(builder, "close_dialog"));
     start = GTK_WIDGET(gtk_builder_get_object(builder, "start"));
     final = GTK_WIDGET(gtk_builder_get_object(builder, "end"));
     route_lable = GTK_WIDGET(gtk_builder_get_object(builder, "route"));
+    spinner = GTK_WIDGET(gtk_builder_get_object(builder, "nodes_number"));
 
     struct spin_data spin_data;
     spin_data.grid = grid;
