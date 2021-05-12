@@ -52,11 +52,9 @@
               <object class="GtkToolButton" id="load">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="tooltip_text" translatable="yes">Load file</property>
                 <property name="label" translatable="yes">Load</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-directory</property>
-                <signal name="clicked" handler="on_load_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -67,25 +65,10 @@
               <object class="GtkToolButton" id="save">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="tooltip_text" translatable="yes">Save file</property>
                 <property name="label" translatable="yes">Save</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-floppy</property>
                 <signal name="clicked" handler="on_save_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="about">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Save</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-about</property>
-                <signal name="clicked" handler="on_about_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -212,7 +195,18 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <placeholder/>
+                                  <object class="GtkEntry" id="A5">
+                                    <property name="can_focus">True</property>
+                                    <property name="width_chars">2</property>
+                                    <property name="max_width_chars">3</property>
+                                    <property name="text" translatable="yes">0</property>
+                                    <property name="xalign">0.5</property>
+                                    <property name="placeholder_text" translatable="yes">0</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">0</property>
+                                    <property name="top_attach">0</property>
+                                  </packing>
                                 </child>
                               </object>
                             </child>
@@ -421,19 +415,6 @@
                       <packing>
                         <property name="x">960</property>
                         <property name="y">32</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkScale">
-                        <property name="width_request">100</property>
-                        <property name="height_request">80</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="adjustment">adjustment1</property>
-                        <property name="round_digits">1</property>
-                      </object>
-                      <packing>
-                        <property name="x">630</property>
                       </packing>
                     </child>
                   </object>
