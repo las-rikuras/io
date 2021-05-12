@@ -4,11 +4,12 @@
 #include <math.h>
 #include "floyd_util.c"
 
-
+GtkWidget *window;
 GtkBuilder *builder;
 GtkWidget *grid;
 GtkWidget *D_label;
 GtkWidget *drawing_area;
+GtkWidget *spinner;
 int current_d = 0;
 int max_d = 1;
 Floyd *F;
@@ -424,8 +425,105 @@ void on_exit_clicked(){
     gtk_main_quit();
 }
 
+void load_labels(Floyd *f, GtkWidget *grid){
+    for(int i = 0; i < f->n; i++){
+        GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(grid), 0, i+1);
+        char str[30];
+        sprintf(str, "%s", f->L[i]);
+        gtk_entry_set_text(GTK_ENTRY(entry), str);
+    }
+}
+
+void on_load_clicked(){
+    GtkWidget *dialog;
+    GtkFileChooser *chooser;
+    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
+    gint res;
+    GtkFileFilter *filter;
+
+    dialog = gtk_file_chooser_dialog_new("Open File", GTK_WINDOW(window), action, "Cancel", GTK_RESPONSE_CANCEL, "Open", GTK_RESPONSE_ACCEPT, NULL);
+    filter = gtk_file_filter_new();
+    gtk_file_filter_add_pattern(filter, "*.fd");
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
+    chooser = GTK_FILE_CHOOSER(dialog);
+    res = gtk_dialog_run(GTK_DIALOG(dialog));
+    if(res == GTK_RESPONSE_ACCEPT){
+        char *fn;
+        fn = gtk_file_chooser_get_filename(chooser);
+        printf("%s\n", fn);
+        F = load_floyd(fn);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinner), F->n * 1.0);
+        load_d(F,grid,current_d);    
+        load_labels(F, grid);
+        print_floyd(F);
+        free(fn);
+    }
+    gtk_widget_destroy(dialog);  
+}
+
+void on_save_clicked(){
+    GtkWidget *dialog;
+    GtkFileChooser *chooser;
+    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_SAVE;
+    gint res;
+
+    dialog = gtk_file_chooser_dialog_new("Save File", GTK_WINDOW(window), action, "Cancel", GTK_RESPONSE_CANCEL, "Save", GTK_RESPONSE_ACCEPT, NULL);
+    chooser = GTK_FILE_CHOOSER(dialog);
+    gtk_file_chooser_set_current_name(chooser, "Untitled");
+    res = gtk_dialog_run(GTK_DIALOG(dialog));
+    if(res == GTK_RESPONSE_ACCEPT){
+        char *fn;
+        fn = gtk_file_chooser_get_filename(chooser);
+        Floyd *fl = (Floyd*)calloc(1,sizeof(Floyd));
+        Value*** d_0 = (Value***)calloc(max_d, sizeof(Value*));
+        
+        for(int i = 0; i < max_d; i++){
+            d_0[i] = (Value**)calloc(max_d, sizeof(Value));
+            for(int j = 0; j < max_d; j++){
+                Value *temp = (Value*)calloc(1, sizeof(Value));
+                GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(grid), j+1, i+1);
+                temp->is_infinite = 0;
+                temp->value = 0;
+                if(GTK_IS_ENTRY(entry)){
+                    const char *val = gtk_entry_get_text(GTK_ENTRY(entry));
+                    if(val[0] == 0){
+                        temp->is_infinite = 1;
+                    }
+                    else{
+                        int number = atoi(val);
+                        temp->value = number;
+                    }
+                }
+                d_0[i][j] = temp;
+            }
+        }
+        init_floyd(fl, d_0, max_d);
+
+        fl->L = malloc(max_d * sizeof(char*));
+
+        int r;
+        char s[30];
+        for(int i = 0; i < max_d; i++){
+            fl->L[i] = malloc((sizeof(s) + 1) * sizeof(char));
+            GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(grid), 0, i+1);
+            if(GTK_IS_ENTRY(entry)){
+                const char *val = gtk_entry_get_text(GTK_ENTRY(entry));
+                if(strlen(val) == 0){
+                    const char *p = gtk_entry_get_placeholder_text(GTK_ENTRY(entry));
+                    strcpy(fl->L[i], p);
+                } else {
+                    strcpy(fl->L[i], val);
+                }
+                
+            }
+        }
+        save_floyd(fn, fl);
+        free(fn);
+    }
+    gtk_widget_destroy(dialog);
+}
+
 int main(int argc, char *argv[]){
-    GtkWidget *window;
     GtkWidget *nodes_number;
     GtkWidget *next_button;
     GtkWidget *previous_button;
@@ -447,6 +545,7 @@ int main(int argc, char *argv[]){
     drawing_area = GTK_WIDGET(gtk_builder_get_object(builder, "drawing_area"));
     zoomin = GTK_WIDGET(gtk_builder_get_object(builder, "zoomin"));
     zoomout = GTK_WIDGET(gtk_builder_get_object(builder, "zoomout"));
+    spinner = GTK_WIDGET(gtk_builder_get_object(builder, "nodes_number"));
 
     struct spin_data spin_data;
     spin_data.grid = grid;
