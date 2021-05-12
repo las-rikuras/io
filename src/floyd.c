@@ -181,7 +181,7 @@ void floyd(Floyd *attr){
             }
         }
     }
-    print_floyd(attr);
+    //print_floyd(attr);
 }
 
 /* Gtk code */
@@ -649,7 +649,6 @@ void on_load_clicked(){
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinner), F->n * 1.0);
         load_d(F,grid,current_d);    
         load_labels(F, grid);
-        print_floyd(F);
         free(fn);
     }
     gtk_widget_destroy(dialog);  
