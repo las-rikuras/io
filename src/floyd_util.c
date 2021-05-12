@@ -11,8 +11,14 @@ typedef struct value_struct {
 typedef struct floyd_struct {
     Value ****D;
     int ***P;
+    char **L;
     int n;
 } Floyd;
+
+typedef struct position {
+    double x;
+    double y;
+} Position;
 
 int save_floyd(char *file_name, Floyd *F){
     char *fn = malloc((strlen(file_name) + 5));
@@ -34,7 +40,10 @@ int save_floyd(char *file_name, Floyd *F){
         }
         fprintf(fp, "\n");
     }
-    fprintf(fp, "\n");      
+
+    for(int i = 0; i < F->n; i++){
+        fprintf(fp, "%s ", F->L[i]);
+    }
 
     fclose(fp);
     return 0;
@@ -43,10 +52,7 @@ int save_floyd(char *file_name, Floyd *F){
 int init_floyd(Floyd *attr, Value ***d_0, int n);
 
 Floyd* load_floyd(char *file_name){
-    char *fn = malloc((strlen(file_name) + 5));
-    strcpy(fn, file_name);
-    strcat(fn, ".fd");
-    FILE *fp = fopen(fn, "r");
+    FILE *fp = fopen(file_name, "r");
     if (fp == NULL){
         printf("File doesn't exits\n");
         exit(1);
@@ -84,8 +90,18 @@ Floyd* load_floyd(char *file_name){
 
     Floyd *E = (Floyd*)calloc(1,sizeof(Floyd));
     E->n = n;
+    E->L = malloc(n * sizeof(char*));
+    
+    char s[30];
+    for(int i = 0; i < n; i++){
+        E->L[i] = malloc((sizeof(s) + 1) * sizeof(char));
+        res = fscanf(fp, "%s", s);
+        strcpy(E->L[i], s);
+    }
 
     init_floyd(E, d_0, n);
+
+    free(d_0);
 
     fclose(fp);
     return E;

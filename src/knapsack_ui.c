@@ -7,6 +7,7 @@ GtkWidget *spinnerCapacity;
 GtkWidget *spinnerMax;
 GtkWidget *tasks;
 GtkWidget *knapsack;
+GtkBuilder *builder;
 
 guint32 task_number = 0;
 guint32 capacity_number = 0;
@@ -14,7 +15,7 @@ guint32 max_number = 0;
 enum Algorithm type = BINARY;
 
 int main(int argc, char *argv[]){
-    GtkBuilder *builder;
+
     GtkWidget *window;
 
     gtk_init(&argc, &argv);
