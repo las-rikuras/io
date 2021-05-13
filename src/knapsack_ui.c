@@ -9,7 +9,7 @@ GtkWidget *spinnerMax;
 GtkWidget *tasks;
 GtkWidget *knapsack;
 GtkBuilder *builder;
-Knapsack *K;
+GtkWidget *window;
 
 guint32 task_number = 0;
 guint32 capacity_number = 0;
@@ -17,9 +17,6 @@ guint32 max_number = 0;
 enum Algorithm type = BINARY;
 
 int main(int argc, char *argv[]){
-
-    GtkWidget *window;
-
     gtk_init(&argc, &argv);
     builder = gtk_builder_new_from_file("glade/knapsack.glade");
     window = GTK_WIDGET(gtk_builder_get_object(builder, "window"));
@@ -55,11 +52,8 @@ void on_load_clicked(){
     res = gtk_dialog_run(GTK_DIALOG(dialog));
     if(res == GTK_RESPONSE_ACCEPT){
         char *fn;
-        fn = gtk_file_chooser_get_filename(chooser);       
-        K = load_floyd(fn);
-        
-        // cargar en interfaz
-
+        fn = gtk_file_chooser_get_filename(chooser);
+        // load_knapsack
         free(fn);
     }
     gtk_widget_destroy(dialog);  
@@ -78,25 +72,23 @@ void on_save_clicked(){
     if(res == GTK_RESPONSE_ACCEPT){
         char *fn;
         fn = gtk_file_chooser_get_filename(chooser);
-              
         // save_knapsack
         free(fn);
     }
     gtk_widget_destroy(dialog);
 }
 
-void on_about_clicked(){
-    printf("ABOUT\n");   
-}
-
 void on_combo_changed(GtkEntry *e){
-    gchar txt = gtk_entry_get_text(e);
-    if(txt == "Bounded"){
+    const gchar *txt = gtk_entry_get_text(e);
+    if(strcmp(txt,"Bounded")){
         type = BOUNDED;
-    } else if (txt == "Unbounded") {
+        printf("1 ");
+    } else if (strcmp(txt,"Ubounded")) {
         type = UNBOUNDED;
+        printf("2 ");
     } else {
         type = BINARY;
+        printf("3 ");
     }
     printf("%s\n", txt);   
 }
