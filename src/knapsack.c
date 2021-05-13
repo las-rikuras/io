@@ -70,6 +70,7 @@ int** get_solution(Knapsack *self){
     return sol;
 }
 
+/*
 #define p 3
 //#define p 7
 
@@ -106,3 +107,4 @@ int main(int argc, char *argv[]){
     print_matrix(sol, 2, K->parts);
     save_knapsack("chirripo", K);
 }
+*/
