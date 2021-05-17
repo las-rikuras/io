@@ -4,6 +4,9 @@
 #include <math.h>
 #include "floyd_util.c"
 
+GtkWidget *load;
+GtkWidget *spinner;
+GtkWidget *window;
 GtkBuilder *builder;
 GtkWidget *grid;
 GtkWidget *D_label;
@@ -180,7 +183,7 @@ void floyd(Floyd *attr){
             }
         }
     }
-    print_floyd(attr);
+    //print_floyd(attr);
 }
 
 /* Gtk code */
@@ -267,6 +270,7 @@ void load_p(Floyd *f, GtkWidget *grid, int k){
 void next(GtkButton *button, gpointer user_data){
     if(!current_d){
         gtk_widget_set_sensitive(nodes_number, 0);
+        gtk_widget_set_sensitive(load, 0);
         GtkWidget *previous = user_data;
         pauseDraw = 1;
         gtk_widget_set_sensitive(previous, 1);
@@ -334,6 +338,7 @@ void previous (GtkButton *button, gpointer user_data){
         GtkWidget *next= user_data;
         gtk_widget_set_sensitive(next, 1);
     }
+
     current_d--;
     char str[5];
     sprintf(str, "D(%d)", current_d);
@@ -354,7 +359,8 @@ void previous (GtkButton *button, gpointer user_data){
         gtk_widget_set_sensitive(GTK_WIDGET(button), 0);
         free(F);
         free(d_0);
-    }
+        gtk_widget_set_sensitive(load, 1);
+    }  
 }
 
 void insert_text_event(GtkEditable *editable, const gchar *text, gint length, gint *position, gpointer data){
@@ -753,6 +759,7 @@ void route (GtkButton *button, gpointer user_data){
             id1 = F->P[max_d][id1-1][id2-1];
         }
     }
+    gtk_widget_destroy(dialog);
 }
 
 int main(int argc, char *argv[]){
@@ -784,6 +791,8 @@ int main(int argc, char *argv[]){
     start = GTK_WIDGET(gtk_builder_get_object(builder, "start"));
     final = GTK_WIDGET(gtk_builder_get_object(builder, "end"));
     route_lable = GTK_WIDGET(gtk_builder_get_object(builder, "route"));
+    spinner = GTK_WIDGET(gtk_builder_get_object(builder, "nodes_number"));
+    load = GTK_WIDGET(gtk_builder_get_object(builder, "load"));
 
     struct spin_data spin_data;
     spin_data.grid = grid;

@@ -3,14 +3,21 @@
 #include <string.h>
 #include <ctype.h>
 
+typedef struct knap_task_struct {
+    int weight;
+    int value;
+} knap_task;
+
 typedef struct knapsack_struct {
-    int **tasks;
+    knap_task **tasks;
     int **knapsack;
     int **quantity;
     int capacity;
     int Q;
     int parts;
 } Knapsack;
+
+int** get_solution(Knapsack *self);
 
 int* init_array(int n){
     int *array = calloc(n, sizeof(int));
@@ -49,6 +56,22 @@ void print_array(int *array, int n){
     printf("\n");
 }
 
+void print_knapsack(Knapsack *K){
+    printf("Parts: %d\n", K->parts);
+    printf("Capacity: %d\n", K->capacity-1);
+    printf("Max: %d\n", K->Q);
+    printf("====== Parts ======\n");
+    for(int i = 0; i < K->parts; i++){
+        printf("Value: %d\tWeight: %d\n", K->tasks[i]->value, K->tasks[i]->weight);
+    }
+    printf("===== Knapsack ====\n");
+    print_matrix(K->knapsack, K->capacity, K->parts);
+    printf("===== Solution ====\n");
+    int **sol = get_solution(K);
+    print_matrix(sol, 2, K->parts);
+    free_matrix(sol, 2);
+}
+
 int save_knapsack(char *file_name, Knapsack *K){
     char *fn = malloc((strlen(file_name) + 5));
     strcpy(fn, file_name);
@@ -62,21 +85,16 @@ int save_knapsack(char *file_name, Knapsack *K){
     fprintf(fp, "%d;\n", K->parts);
     fprintf(fp, "%d;\n", K->capacity-1);
     fprintf(fp, "%d;\n", K->Q);
-    for(int i = 0; i < 2; i++){
-        for(int j = 0; j < K->parts; j++){
-            fprintf(fp, "%d;", K->tasks[i][j]);
-        }
-        fprintf(fp, "\n");      
+
+    for(int i = 0; i < K->parts; i++){
+        fprintf(fp, "%d;%d;\n", K->tasks[i]->value, K->tasks[i]->weight);
     }
     fclose(fp);
     return 0;
 }
 
 Knapsack* load_knapsack(char *file_name){
-    char *fn = malloc((strlen(file_name) + 5));
-    strcpy(fn, file_name);
-    strcat(fn, ".fd");
-    FILE *fp = fopen(fn, "r");
+    FILE *fp = fopen(file_name, "r");
     if (fp == NULL){
         printf("File doesn't exits\n");
         exit(1);
@@ -102,19 +120,18 @@ Knapsack* load_knapsack(char *file_name){
         exit(1);
     }
     
-    int **tasks = init_matrix(2, K->parts);
+    K->tasks = malloc(K->parts * sizeof(knap_task));
 
-    for(int i = 0; i < 2; i++){
-        for(int j = 0; j < K->parts; j++){
-            res = fscanf(fp, "%d;\n", &tasks[i][j]);
-            if(res < 1){
-                printf("Incorrect file format\n");
-                exit(1);
-            }
+
+    for(int i = 0; i < K->parts; i++){
+        K->tasks[i] = malloc(sizeof(knap_task));
+        res = fscanf(fp, "%d;%d;\n", &K->tasks[i]->value, &K->tasks[i]->weight);
+        if(res < 1){
+            printf("Incorrect file format\n");
+            exit(1);
         }
     }
 
-    K->tasks = tasks;
     fclose(fp);
     return K;
 }

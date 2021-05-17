@@ -52,10 +52,7 @@ int save_floyd(char *file_name, Floyd *F){
 int init_floyd(Floyd *attr, Value ***d_0, int n);
 
 Floyd* load_floyd(char *file_name){
-    char *fn = malloc((strlen(file_name) + 5));
-    strcpy(fn, file_name);
-    strcat(fn, ".fd");
-    FILE *fp = fopen(fn, "r");
+    FILE *fp = fopen(file_name, "r");
     if (fp == NULL){
         printf("File doesn't exits\n");
         exit(1);

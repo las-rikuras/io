@@ -4,25 +4,10 @@
 int main(int argc, char *argv[]){
     GtkBuilder *builder;
     GtkWidget *window;
-    GtkWidget *button;
 
     gtk_init(&argc, &argv);
     builder = gtk_builder_new_from_file("glade/menu.glade");
     window = GTK_WIDGET(gtk_builder_get_object(builder, "window_menu"));
-
-    // set tooltips
-    button = GTK_WIDGET(gtk_builder_get_object(builder, "floyd"));
-    gtk_widget_set_tooltip_text(button, "Algorithm to find the shortest distance between any pair of nodes");
-
-    button = GTK_WIDGET(gtk_builder_get_object(builder, "series"));
-    gtk_widget_set_tooltip_text(button, "Algorithm to find the probability for a team to win a determined game in a series");
-
-    button = GTK_WIDGET(gtk_builder_get_object(builder, "knapsack"));
-    gtk_widget_set_tooltip_text(button, "This algorithm allows to optimally allocate a budget between various activities");
-
-    button = GTK_WIDGET(gtk_builder_get_object(builder, "replacement"));
-    gtk_widget_set_tooltip_text(button, "Algorithm to determine when it is best to make an equipment change within a defined period of time");
-    
     gtk_builder_connect_signals(builder, NULL);
     g_object_unref(builder);
     gtk_widget_show(window);
@@ -40,7 +25,7 @@ void on_exit_clicked(){
 }
 
 void on_floyd_clicked(){
-    system("./pending &");
+    system("./floyd &");
 }
 
 void on_knapsack_clicked(){
