@@ -729,18 +729,29 @@ void route (GtkButton *button, gpointer user_data){
     const char *end = gtk_combo_box_get_active_id(GTK_COMBO_BOX(final));
     int id2 = end[0];
     char buf[5000];
-    while(1){
+
+    if(id1 == id2){
         GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(p_grid), 0, id1);
         const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
-        if(!F->P[max_d][id1-1][id2-1]){
-            entry = gtk_grid_get_child_at(GTK_GRID(p_grid), 0, id2);
-            const char *last = gtk_entry_get_text(GTK_ENTRY(entry));
-            snprintf(buf, sizeof buf, "%s->%s", text, last);
-            gtk_label_set_text(GTK_LABEL(route_lable), buf);
-            break;
+        strcat(buf, text);
+    }
+    else{
+        while(1){
+            GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(p_grid), 0, id1);
+            const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
+            if(!F->P[max_d][id1-1][id2-1]){
+                entry = gtk_grid_get_child_at(GTK_GRID(p_grid), 0, id2);
+                const char *last = gtk_entry_get_text(GTK_ENTRY(entry));
+                strcat(buf, text);
+                strcat(buf, "->");
+                strcat(buf, last);
+                gtk_label_set_text(GTK_LABEL(route_lable), buf);
+                break;
+            }
+            strcat(buf, text);
+            strcat(buf, "->");
+            id1 = F->P[max_d][id1-1][id2-1];
         }
-        snprintf(buf, sizeof buf, "%s->", text);
-        id1 = F->P[max_d][id1-1][id2-1];
     }
 }
 
