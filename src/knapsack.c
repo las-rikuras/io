@@ -72,12 +72,12 @@ int** get_solution(Knapsack *self){
 
 // #define p 3
 // #define p 7
+#define p 4
 
-/*
 int main(int argc, char *argv[]){
     // from file
-    Knapsack *K = load_knapsack("chirripo.kn");
-    setup_knapsack_from_file(K);
+    // Knapsack *K = load_knapsack("chirripo.kn");
+    // setup_knapsack_from_file(K);
     // from interface
  
     // int v[p] = {11, 7, 12};
@@ -88,8 +88,12 @@ int main(int argc, char *argv[]){
     // int w[p] = {3, 4, 2, 6, 7, 3, 5};
     // int cap = 15; 
 
-    // Knapsack *K = (Knapsack*)calloc(1,sizeof(Knapsack));
-    // setup_knapsack(K, cap, p, cap, v, w);
+    int v[p] = {0, 0, 0, 0};
+    int w[p] = {1, 1, 1, 1};
+    int cap = 15; 
+
+    Knapsack *K = (Knapsack*)calloc(1,sizeof(Knapsack));
+    setup_knapsack(K, 1, p, cap, v, w);
 
 
     // ===================
@@ -97,4 +101,3 @@ int main(int argc, char *argv[]){
     print_knapsack(K);
     //save_knapsack("chirripo3", K);
 }
-*/
