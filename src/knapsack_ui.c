@@ -42,6 +42,12 @@ void set_task_values(Knapsack *k){
         sprintf(weight, "%d", k->tasks[i-1]->weight);
         gtk_entry_set_text(GTK_ENTRY(v_entry), value);
         gtk_entry_set_text(GTK_ENTRY(w_entry), weight);
+        if(k->type == BOUNDED){
+            GtkWidget *c_entry = gtk_grid_get_child_at(GTK_GRID(tasks), i, 3);
+            char copies[10];
+            sprintf(copies, "%d", k->copies[i-1]);
+            gtk_entry_set_text(GTK_ENTRY(c_entry), copies);
+        }
     }
 }
 
@@ -67,7 +73,16 @@ void get_task_values(Knapsack *k){
         else{
             k->tasks[i-1]->weight = atoi(weight);
         }
-
+        if(k->type == BOUNDED){
+            GtkWidget *c_entry = gtk_grid_get_child_at(GTK_GRID(tasks), i, 3);
+            const char *copies = gtk_entry_get_text(GTK_ENTRY(c_entry));
+            if(strlen(copies) == 0){
+                k->copies[i-1] = 1;
+            } 
+            else{
+                k->copies[i-1]= atoi(copies);
+            }
+        }
     }
 }
 
@@ -92,10 +107,7 @@ void on_load_clicked(){
         gtk_combo_box_set_active(GTK_COMBO_BOX(knapsackType), k->type);
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinnerTask), k->parts);
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinnerCapacity), k->capacity);
-        /* Buscar en task
-        if(k->type != UNBOUNDED)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinnerMax), k->Q);
-        */
+       
         set_task_values(k);                  //         NO  
         setup_knapsack_from_file(k);         // 
         bounded_knapsack(k);                 //      SEPARES
@@ -125,8 +137,9 @@ void on_save_clicked(){
         knap->type = type;
         
         if(knap->type == BOUNDED){
-            /* armar lista copies
-            knap->Q = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spinnerMax));*/
+            for(int j = 1; j <= task_number; j++){
+                
+            }
         } else if (knap->type == UNBOUNDED){
             knap->Q = knap->capacity;
         } else {
