@@ -18,6 +18,8 @@ GtkWidget *z_grid;
 GtkWidget *subjects_grid;
 GtkWidget *x_sub_i;
 
+Knapsack *K;
+
 guint32 task_number = 1;
 int previous_task_number = 1;
 guint32 capacity_number = 1;
@@ -30,6 +32,64 @@ void change_x_sub_i(char *val);
 void on_window_destroy(){
     gtk_main_quit();
 }
+
+// setear valores de tasks
+void set_task_values(){
+    for(int i = 1; i <= K->parts; i++){
+        GtkWidget *w_entry = gtk_grid_get_child_at(GTK_GRID(tasks), i, 2);
+        GtkWidget *v_entry = gtk_grid_get_child_at(GTK_GRID(tasks), i, 1);
+        char value[10];
+        char weight[10];
+        sprintf(value, "%d", K->tasks[i-1]->value);
+        sprintf(weight, "%d", K->tasks[i-1]->weight);
+        gtk_entry_set_text(GTK_ENTRY(v_entry), value);
+        gtk_entry_set_text(GTK_ENTRY(w_entry), weight);
+    }
+}
+
+// tomar valores de tasks
+void get_task_values(){
+    for(int i = 1; i < K->parts; i++){
+        for(int j = 1; j <= 2; j++){
+            GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(tasks), j, i);
+            const char *c = gtk_entry_get_text(GTK_ENTRY(entry));
+            if(strlen(c) == 0){
+                c = gtk_entry_get_placeholder_text(GTK_ENTRY(entry));
+            } 
+        }
+    }
+}
+
+/*
+void load_d(GtkWidget *grid, int k){
+    for(int i = 0; i < f->n; i++){
+        for(int j = 0; j < f->n; j++){
+            if(i != j){
+                GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(grid), j+1, i+1);
+                if(f->D[k][i][j]->is_infinite){
+                    gtk_entry_set_text(GTK_ENTRY(entry), "");
+                }
+                else{
+                    char str[10];
+                    if(k!=0){
+                        if(f->D[k][i][j]->value != f->D[k-1][i][j]->value){
+                            GtkCssProvider *provider = gtk_css_provider_new ();
+                            GtkStyleContext * context = gtk_widget_get_style_context(entry);
+                            gtk_css_provider_load_from_path (provider, "css/entry_change.css", NULL);
+                            gtk_style_context_add_provider (context,
+                                                                GTK_STYLE_PROVIDER(provider),
+                                                                GTK_STYLE_PROVIDER_PRIORITY_USER);
+
+                        }
+                    }
+
+                    sprintf(str, "%d", f->D[k][i][j]->value);
+                    gtk_entry_set_text(GTK_ENTRY(entry), str);
+                }
+            }
+        }
+    }
+}*/
 
 void on_load_clicked(){
     GtkWidget *dialog;
@@ -47,7 +107,15 @@ void on_load_clicked(){
     if(res == GTK_RESPONSE_ACCEPT){
         char *fn;
         fn = gtk_file_chooser_get_filename(chooser);
-        // load_knapsack
+        K = load_knapsack(fn);
+
+        gtk_combo_box_set_active(GTK_COMBO_BOX(knapsackType), K->type);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinnerTask), K->parts);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinnerCapacity), K->capacity);
+        if(K->type != 2)
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinnerMax), K->Q);
+        set_task_values();    
+
         free(fn);
     }
     gtk_widget_destroy(dialog);  
@@ -66,7 +134,7 @@ void on_save_clicked(){
     if(res == GTK_RESPONSE_ACCEPT){
         char *fn;
         fn = gtk_file_chooser_get_filename(chooser);
-        // save_knapsack
+        save_knapsack(fn, K);
         free(fn);
     }
     gtk_widget_destroy(dialog);

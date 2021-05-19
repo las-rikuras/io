@@ -15,6 +15,7 @@ typedef struct knapsack_struct {
     int capacity;
     int Q;
     int parts;
+    int type;
 } Knapsack;
 
 int** get_solution(Knapsack *self);
@@ -85,6 +86,7 @@ int save_knapsack(char *file_name, Knapsack *K){
     fprintf(fp, "%d;\n", K->parts);
     fprintf(fp, "%d;\n", K->capacity-1);
     fprintf(fp, "%d;\n", K->Q);
+    fprintf(fp, "%d;\n", K->type);
 
     for(int i = 0; i < K->parts; i++){
         fprintf(fp, "%d;%d;\n", K->tasks[i]->value, K->tasks[i]->weight);
@@ -115,6 +117,12 @@ Knapsack* load_knapsack(char *file_name){
     }
 
     res = fscanf(fp, "%d;\n", &K->Q);
+    if(res < 1){
+        printf("Incorrect file format\n");
+        exit(1);
+    }
+
+    res = fscanf(fp, "%d;\n", &K->type);
     if(res < 1){
         printf("Incorrect file format\n");
         exit(1);

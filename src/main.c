@@ -29,7 +29,7 @@ void on_floyd_clicked(){
 }
 
 void on_knapsack_clicked(){
-    system("./pending &");
+    system("./knapsack_ui &");
 }
 
 void on_replacement_clicked(){
