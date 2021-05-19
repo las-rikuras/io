@@ -2,7 +2,7 @@
 #include "knapsack.c"
 #include "util/gtk-utility.c"
 
-enum Algorithm {BOUNDED, UNBOUNDED, BINARY};
+enum Algorithm {BINARY, BOUNDED, UNBOUNDED};
 GtkWidget *spinnerTask;
 GtkWidget *spinnerCapacity;
 GtkWidget *spinnerMax;
@@ -23,24 +23,25 @@ guint32 task_number = 1;
 int previous_task_number = 1;
 guint32 capacity_number = 1;
 int previous_capacity_number = 1;
-guint32 max_number = 0;
-enum Algorithm type = BINARY;
+guint32 max_number = 1;
+enum Algorithm type = BOUNDED;
 
 void change_x_sub_i(char *val);
+void load_kn_on_table(Knapsack *knap);
 
 void on_window_destroy(){
     gtk_main_quit();
 }
 
 // setear valores de tasks
-void set_task_values(){
-    for(int i = 1; i <= K->parts; i++){
+void set_task_values(Knapsack *k){
+    for(int i = 1; i <= k->parts; i++){
         GtkWidget *w_entry = gtk_grid_get_child_at(GTK_GRID(tasks), i, 2);
         GtkWidget *v_entry = gtk_grid_get_child_at(GTK_GRID(tasks), i, 1);
         char value[10];
         char weight[10];
-        sprintf(value, "%d", K->tasks[i-1]->value);
-        sprintf(weight, "%d", K->tasks[i-1]->weight);
+        sprintf(value, "%d", k->tasks[i-1]->value);
+        sprintf(weight, "%d", k->tasks[i-1]->weight);
         gtk_entry_set_text(GTK_ENTRY(v_entry), value);
         gtk_entry_set_text(GTK_ENTRY(w_entry), weight);
     }
@@ -49,24 +50,26 @@ void set_task_values(){
 // tomar valores de tasks
 void get_task_values(Knapsack *k){
     for(int i = 1; i <= k->parts; i++){
-        GtkWidget *w_entry = gtk_grid_get_child_at(GTK_GRID(tasks), i                           , 2);
+        GtkWidget *w_entry = gtk_grid_get_child_at(GTK_GRID(tasks), i, 2);
         GtkWidget *v_entry = gtk_grid_get_child_at(GTK_GRID(tasks), i, 1);
 
-        if(GTK_IS_ENTRY(w_entry) && GTK_IS_ENTRY(v_entry)){
-            const char *value = gtk_entry_get_text(GTK_ENTRY(v_entry));
-            const char *weight = gtk_entry_get_text(GTK_ENTRY(w_entry));
+        const char *value = gtk_entry_get_text(GTK_ENTRY(v_entry));
+        const char *weight = gtk_entry_get_text(GTK_ENTRY(w_entry));
 
-            if(strlen(value) == 0){
-                value = gtk_entry_get_placeholder_text(GTK_ENTRY(v_entry));
-            } 
-
-            if(strlen(weight) == 0){
-                weight = gtk_entry_get_placeholder_text(GTK_ENTRY(w_entry));
-            } 
-
+        if(strlen(value) == 0){
+            k->tasks[i-1]->value = 1;
+        }
+        else{
             k->tasks[i-1]->value = atoi(value);
+        } 
+
+        if(strlen(weight) == 0){
+            k->tasks[i-1]->weight = 1;
+        } 
+        else{
             k->tasks[i-1]->weight = atoi(weight);
         }
+
     }
 }
 
@@ -86,15 +89,18 @@ void on_load_clicked(){
     if(res == GTK_RESPONSE_ACCEPT){
         char *fn;
         fn = gtk_file_chooser_get_filename(chooser);
-        K = load_knapsack(fn);
+        Knapsack *k = load_knapsack(fn);
 
-        gtk_combo_box_set_active(GTK_COMBO_BOX(knapsackType), K->type);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinnerTask), K->parts);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinnerCapacity), K->capacity);
-        if(K->type != 2)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinnerMax), K->Q);
-        set_task_values();    
+        gtk_combo_box_set_active(GTK_COMBO_BOX(knapsackType), k->type);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinnerTask), k->parts);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinnerCapacity), k->capacity);
+        if(k->type != UNBOUNDED)
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinnerMax), k->Q);
+        set_task_values(k);                  //         NO  
+        setup_knapsack_from_file(k);         // 
+        bounded_knapsack(k);                 //      SEPARES
 
+        load_kn_on_table(k);
         free(fn);
     }
     gtk_widget_destroy(dialog);  
@@ -118,9 +124,9 @@ void on_save_clicked(){
         knap->capacity = capacity_number;
         knap->type = type;
         
-        if(knap->type == 1){
-            knap->Q = max_number;
-        } else if (knap->type == 2){
+        if(knap->type == BOUNDED){
+            knap->Q = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spinnerMax));
+        } else if (knap->type == UNBOUNDED){
             knap->Q = knap->capacity;
         } else {
             knap->Q = 1;
@@ -131,6 +137,7 @@ void on_save_clicked(){
             knap->tasks[i] = malloc(sizeof(knap_task));
         }
         get_task_values(knap);
+        printf("C: %d Max: %d\n", knap->capacity, knap->Q);
         save_knapsack(fn, knap);
         free(fn);
         free(knap);
@@ -290,6 +297,66 @@ void on_max_changed(){
     char str[10];
     sprintf(str, "... %d", max_number);
     change_x_sub_i(str);
+}
+
+void load_kn_on_table(Knapsack *knap){
+    for(int j = 1; j <= knap->parts; j++){
+        for(int i = 1; i <= knap->capacity; i++){
+            GtkWidget *label = gtk_grid_get_child_at(GTK_GRID(knapsack_grid), j*2-1, i);
+            char markup[2048];
+            if(knap->quantity[i-1][j-1] == 0){
+                sprintf(markup, "<span background=\"#7a0000\" foreground=\"white\">%d</span>", knap->knapsack[i-1][j-1]);
+            }
+            else{
+                sprintf(markup, "<span background=\"#007a35\" foreground=\"white\">%d</span>", knap->knapsack[i-1][j-1]);
+            }
+            gtk_label_set_markup(GTK_LABEL(label), markup);
+            
+            label = gtk_grid_get_child_at(GTK_GRID(knapsack_grid), j*2, i);
+            if(knap->knapsack[i-1][j-1] != 0 && knap->type != BINARY){
+                GtkWidget *object = gtk_grid_get_child_at(GTK_GRID(tasks), j, 0);
+                const char *text = gtk_entry_get_text(GTK_ENTRY(object));
+                if(strlen(text) == 0){
+                    const char *placeholder = gtk_entry_get_placeholder_text(GTK_ENTRY(object));
+                    sprintf(markup, "<span size=\"smaller\"><span foreground=\"orange1\" size=\"smaller\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = %d</span>", placeholder, knap->quantity[i-1][j-1]);
+                }
+                else{
+                    sprintf(markup, "<span size=\"smaller\"><span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = %d</span>", text, knap->quantity[i-1][j-1]);
+                }
+                gtk_label_set_markup(GTK_LABEL(label), markup);
+            }
+            else{
+                gtk_label_set_text(GTK_LABEL(label), "");
+            }
+        }
+    }
+}
+
+void solve_kn(GtkButton *button, gpointer user_data){
+    Knapsack *knap = (Knapsack*)calloc(1,sizeof(Knapsack));
+    knap->parts = task_number;
+    knap->capacity = capacity_number;
+    knap->type = type;
+    
+    if(knap->type == BOUNDED){
+        knap->Q = max_number;
+    } else if (knap->type == UNBOUNDED){
+        knap->Q = knap->capacity;
+    } else {
+        knap->Q = 1;
+    }
+
+    knap->tasks = malloc(knap->parts * sizeof(knap_task));
+    for(int i = 0; i < knap->parts; i++){
+        knap->tasks[i] = malloc(sizeof(knap_task));
+    }
+
+
+    get_task_values(knap);                  //         NO  
+    setup_knapsack_from_file(knap);         //         ME
+    bounded_knapsack(knap);                 //      SEPARES
+
+    load_kn_on_table(knap);
 }
 
 int main(int argc, char *argv[]){
