@@ -7,7 +7,7 @@ GTK=`pkg-config --cflags --libs gtk+-3.0`
 
 LDFLAGS=-pthread $(GTK) -export-dynamic -lm
 
-OBJS= $(NAME).o
+OBJS= $(NAME).o 
 
 all: $(OBJS)
 	gcc -o $(TARGET) $(OBJS) $(LDFLAGS)
