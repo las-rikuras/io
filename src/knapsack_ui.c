@@ -16,6 +16,7 @@ GtkWidget *knapsackType;
 GtkWidget *z_grid;
 GtkWidget *subjects_grid;
 GtkWidget *x_sub_i;
+GtkWidget *solution_label;
 
 Knapsack *K;
 
@@ -137,7 +138,6 @@ void on_save_clicked(){
             knap->tasks[i] = malloc(sizeof(knap_task));
         }
         get_task_values(knap);
-        printf("C: %d Max: %d\n", knap->capacity, knap->Q);
         save_knapsack(fn, knap);
         free(fn);
         free(knap);
@@ -225,6 +225,8 @@ void on_task_changed(){
             sprintf(label, "%c", letter);
             insertEntryLabel(tasks, i, 0, NULL, label, 0, 1);
 
+            insertLabel(solution, i, 0, label, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = ?");
+
             insertLabel(z_grid, i*2-1, 0, "+", NULL);
             insertLabel(z_grid, i*2, 0, label, "<span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span>");
 
@@ -247,6 +249,7 @@ void on_task_changed(){
             int weigth = 49;
             sprintf(label, "%c", weigth);
             insertEntry(tasks, i, 2, NULL, label, 1, 0, 0);
+
         }
     }
     else{ 
@@ -258,6 +261,7 @@ void on_task_changed(){
             gtk_grid_remove_column(GTK_GRID(knapsack_grid), i*2-1);
             gtk_grid_remove_column(GTK_GRID(subjects_grid), i*2-2);
             gtk_grid_remove_column(GTK_GRID(subjects_grid), i*2-3);
+            gtk_grid_remove_column(GTK_GRID(solution), i);
         }
     } 
     previous_task_number = task_number;
@@ -330,6 +334,37 @@ void load_kn_on_table(Knapsack *knap){
             }
         }
     }
+    int **sol = get_solution(knap);
+    int sol_number = 0;
+    char markup[2048];
+    GtkWidget *label = gtk_grid_get_child_at(GTK_GRID(solution), 0, 0);
+    GtkWidget *name = gtk_grid_get_child_at(GTK_GRID(tasks), 1, 0);
+    const char * temp = gtk_entry_get_text(GTK_ENTRY(name));
+    if(strlen(temp) == 0){
+        const char *temp2 = gtk_entry_get_placeholder_text(GTK_ENTRY(name));
+        sprintf(markup, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = %d", temp2, sol[1][0]);
+    }
+    else{
+        sprintf(markup, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = %d", temp, sol[1][0]);
+    }
+    gtk_label_set_markup(GTK_LABEL(label), markup);
+    sol_number += knap->tasks[0]->value * sol[1][0];
+    for(int i = 1; i <= knap->parts; i++){
+        sol_number += knap->tasks[i]->value * sol[1][i];
+        label = gtk_grid_get_child_at(GTK_GRID(solution), i, 0);
+        name = gtk_grid_get_child_at(GTK_GRID(tasks), i+1, 0);
+        const char * lab = gtk_entry_get_text(GTK_ENTRY(name));
+        if(strlen(lab) == 0){
+            const char *placeholder = gtk_entry_get_placeholder_text(GTK_ENTRY(name));
+            sprintf(markup, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = %d", placeholder, sol[1][i]);
+        }
+        else{
+            sprintf(markup, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = %d", lab, sol[1][i]);
+        }
+        gtk_label_set_markup(GTK_LABEL(label), markup);
+    }
+    sprintf(markup, "<b>Z = <span foreground=\"orange1\">%d</span></b>", sol_number);
+    gtk_label_set_markup(GTK_LABEL(solution_label), markup);
 }
 
 void solve_kn(GtkButton *button, gpointer user_data){
@@ -374,6 +409,7 @@ int main(int argc, char *argv[]){
     subjects_grid = GTK_WIDGET(gtk_builder_get_object(builder, "subjects_grid"));
     max_label = GTK_WIDGET(gtk_builder_get_object(builder, "max_label"));
     x_sub_i = GTK_WIDGET(gtk_builder_get_object(builder, "x_sub_i"));
+    solution_label = GTK_WIDGET(gtk_builder_get_object(builder, "solution_label"));
 
     gtk_combo_box_set_active(GTK_COMBO_BOX(knapsackType), 1);
     gtk_builder_connect_signals(builder, NULL);
