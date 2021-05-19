@@ -30,11 +30,9 @@ Space complexity O(n^3)
 
 This algorithm generates two tables, D which contains the weight of the shortest path to any node and P with the routes between any two nodes.
 
-
-
-
-
-</property>
+Input: 
+The number of nodes N
+N x N table with the distances between nodes</property>
             <property name="margin_left">10</property>
             <property name="margin_right">10</property>
             <property name="margin_top">20</property>
@@ -55,6 +53,8 @@ This algorithm generates two tables, D which contains the weight of the shortest
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="tooltip_text" translatable="yes">This algorithm allows to optimally allocate a budget between various activities.
+
+Complexity O(n^2)
 
 Input: 
 A set of objects and a set of weights for each object and a maximum total value for the knapsack capacity.

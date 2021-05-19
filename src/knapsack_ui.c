@@ -114,12 +114,12 @@ void on_save_clicked(){
         char *fn;
         fn = gtk_file_chooser_get_filename(chooser);
         Knapsack *knap = (Knapsack*)calloc(1,sizeof(Knapsack));
-        knap->parts = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spinnerTask));
-        knap->capacity = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spinnerCapacity));
-        knap->type = gtk_combo_box_get_active(GTK_COMBO_BOX(knapsackType));
+        knap->parts = task_number;
+        knap->capacity = capacity_number;
+        knap->type = type;
         
         if(knap->type == 1){
-            knap->Q = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spinnerMax));
+            knap->Q = max_number;
         } else if (knap->type == 2){
             knap->Q = knap->capacity;
         } else {
