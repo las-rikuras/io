@@ -3,7 +3,6 @@
 #include "util/gtk-utility.c"
 
 enum Algorithm {BOUNDED, UNBOUNDED, BINARY};
-GtkWidget *combo;
 GtkWidget *spinnerTask;
 GtkWidget *spinnerCapacity;
 GtkWidget *spinnerMax;
@@ -48,48 +47,31 @@ void set_task_values(){
 }
 
 // tomar valores de tasks
-void get_task_values(){
-    for(int i = 1; i < K->parts; i++){
-        for(int j = 1; j <= 2; j++){
-            GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(tasks), j, i);
-            const char *c = gtk_entry_get_text(GTK_ENTRY(entry));
-            if(strlen(c) == 0){
-                c = gtk_entry_get_placeholder_text(GTK_ENTRY(entry));
+void get_task_values(Knapsack *k){
+    printf("SI 2.1 %d\n", k->parts);
+    for(int i = 1; i <= k->parts; i++){
+        GtkWidget *w_entry = gtk_grid_get_child_at(GTK_GRID(tasks), i                           , 2);
+        GtkWidget *v_entry = gtk_grid_get_child_at(GTK_GRID(tasks), i, 1);
+        printf("SI 2.2\n");
+        if(GTK_IS_ENTRY(w_entry) && GTK_IS_ENTRY(v_entry)){
+            const char *value = gtk_entry_get_text(GTK_ENTRY(v_entry));
+            const char *weight = gtk_entry_get_text(GTK_ENTRY(w_entry));
+            printf("SI 2.3\n");
+            if(strlen(value) == 0){
+                value = gtk_entry_get_placeholder_text(GTK_ENTRY(v_entry));
             } 
+            printf("SI 2.4\n");
+            if(strlen(weight) == 0){
+                weight = gtk_entry_get_placeholder_text(GTK_ENTRY(w_entry));
+            } 
+
+            printf("i: %d value: %s weight %s\n", i, value, weight);
+            k->tasks[i-1]->value = atoi(value);
+            k->tasks[i-1]->weight = atoi(weight);
+            printf("SI 2.5\n");
         }
     }
 }
-
-/*
-void load_d(GtkWidget *grid, int k){
-    for(int i = 0; i < f->n; i++){
-        for(int j = 0; j < f->n; j++){
-            if(i != j){
-                GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(grid), j+1, i+1);
-                if(f->D[k][i][j]->is_infinite){
-                    gtk_entry_set_text(GTK_ENTRY(entry), "");
-                }
-                else{
-                    char str[10];
-                    if(k!=0){
-                        if(f->D[k][i][j]->value != f->D[k-1][i][j]->value){
-                            GtkCssProvider *provider = gtk_css_provider_new ();
-                            GtkStyleContext * context = gtk_widget_get_style_context(entry);
-                            gtk_css_provider_load_from_path (provider, "css/entry_change.css", NULL);
-                            gtk_style_context_add_provider (context,
-                                                                GTK_STYLE_PROVIDER(provider),
-                                                                GTK_STYLE_PROVIDER_PRIORITY_USER);
-
-                        }
-                    }
-
-                    sprintf(str, "%d", f->D[k][i][j]->value);
-                    gtk_entry_set_text(GTK_ENTRY(entry), str);
-                }
-            }
-        }
-    }
-}*/
 
 void on_load_clicked(){
     GtkWidget *dialog;
@@ -134,10 +116,31 @@ void on_save_clicked(){
     if(res == GTK_RESPONSE_ACCEPT){
         char *fn;
         fn = gtk_file_chooser_get_filename(chooser);
-        save_knapsack(fn, K);
+        Knapsack *knap = (Knapsack*)calloc(1,sizeof(Knapsack));
+        knap->parts = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spinnerTask));
+        knap->capacity = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spinnerCapacity));
+        knap->type = gtk_combo_box_get_active(GTK_COMBO_BOX(knapsackType));
+        
+        if(knap->type == 1){
+            knap->Q = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spinnerMax));
+        } else if (knap->type == 2){
+            knap->Q = knap->capacity;
+        } else {
+            knap->Q = 1;
+        }
+        printf("SI\n");
+        knap->tasks = malloc(knap->parts * sizeof(knap_task));
+        printf("SI2 %d\n", knap->parts);
+        get_task_values(knap);
+        printf("Si3\n");
+        save_knapsack(fn, knap);
+        printf("SI4\n");
         free(fn);
+        free(knap);
+        printf("SI5\n");
     }
     gtk_widget_destroy(dialog);
+    printf("SI6\n");
 }
 
 void on_combo_changed(GtkEntry *e){
