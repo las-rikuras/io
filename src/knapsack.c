@@ -21,7 +21,7 @@ int get_max(Knapsack *self, int i, int j, int k){
 void bounded_knapsack(Knapsack *self){
     for(int i = 0; i < self->capacity; i++){
         for(int j = 0; j < self->parts; j++){
-            int q = i/self->tasks[j]->weight > self->Q ? self->Q : i/self->tasks[j]->weight;
+            int q = i/self->tasks[j]->weight > self->copies[j] ? self->copies[j] : i/self->tasks[j]->weight;
             for(int k = 0; k <= q; k++){
                 if(task_weight(self, j, k) <= i){
                     int t1 = get_max(self, i, j, k);
@@ -38,7 +38,6 @@ void bounded_knapsack(Knapsack *self){
 }
 
 void setup_knapsack_from_file(Knapsack *self){
-    self->copies = calloc(self->parts, sizeof(int));
     self->capacity = self->capacity + 1;
     self->knapsack = init_matrix(self->capacity, self->parts);
     self->quantity = init_matrix(self->capacity, self->parts);
