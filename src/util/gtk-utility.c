@@ -33,11 +33,14 @@ void insertEntry(GtkWidget *grid, int i, int j, char *val, char *placeholder, in
     gtk_entry_set_has_frame(GTK_ENTRY(entry), has_frame);
     g_signal_connect(G_OBJECT(entry), "insert_text", G_CALLBACK(entry_number), NULL);
 
-    if(is_value){
+    if(is_value == 1){
         g_signal_connect(G_OBJECT(entry), "changed", G_CALLBACK(value_change), NULL);
     }
-    else{
+    else if (is_value == 0){
         g_signal_connect(G_OBJECT(entry), "changed", G_CALLBACK(weigth_change), NULL);
+    }
+    else{
+        
     }
 
     if(val){

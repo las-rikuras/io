@@ -87,25 +87,6 @@
               </packing>
             </child>
             <child>
-              <object class="GtkSpinButton" id="max">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="margin-left">10</property>
-                <property name="margin-right">10</property>
-                <property name="margin-top">5</property>
-                <property name="margin-bottom">5</property>
-                <property name="text" translatable="yes">0</property>
-                <property name="input-purpose">number</property>
-                <property name="adjustment">Max</property>
-                <property name="numeric">True</property>
-                <signal name="value-changed" handler="on_max_changed" swapped="no"/>
-              </object>
-              <packing>
-                <property name="left-attach">3</property>
-                <property name="top-attach">1</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkSpinButton" id="capacity">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
@@ -165,15 +146,26 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="max_label">
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Solve</property>
                 <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Max</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="margin-start">5</property>
+                <property name="margin-end">10</property>
+                <property name="margin-top">5</property>
+                <property name="margin-bottom">5</property>
+                <property name="image">image1</property>
+                <property name="always-show-image">True</property>
+                <signal name="clicked" handler="solve_kn" swapped="no"/>
               </object>
               <packing>
                 <property name="left-attach">3</property>
-                <property name="top-attach">0</property>
+                <property name="top-attach">1</property>
               </packing>
+            </child>
+            <child>
+              <placeholder/>
             </child>
             <child>
               <placeholder/>
@@ -237,7 +229,7 @@
         <child>
           <object class="GtkScrolledWindow">
             <property name="name">a</property>
-            <property name="height-request">140</property>
+            <property name="height-request">155</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="margin-left">10</property>
@@ -251,7 +243,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <child>
-                  <!-- n-columns=2 n-rows=3 -->
+                  <!-- n-columns=2 n-rows=4 -->
                   <object class="GtkGrid" id="tasks">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -334,6 +326,34 @@
                       <packing>
                         <property name="left-attach">0</property>
                         <property name="top-attach">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">Copies</property>
+                        <property name="width-chars">10</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">3</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="has-frame">False</property>
+                        <property name="width-chars">3</property>
+                        <property name="max-width-chars">3</property>
+                        <property name="xalign">0.5</property>
+                        <property name="placeholder-text" translatable="yes">1</property>
+                        <signal name="insert-text" handler="entry_number" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">3</property>
                       </packing>
                     </child>
                     <child>
@@ -687,64 +707,6 @@
           </packing>
         </child>
         <child>
-          <!-- n-columns=4 n-rows=2 -->
-          <object class="GtkGrid">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <child>
-              <object class="GtkButton">
-                <property name="label" translatable="yes">Solve</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <property name="margin-start">5</property>
-                <property name="margin-end">10</property>
-                <property name="margin-top">5</property>
-                <property name="margin-bottom">5</property>
-                <property name="image">image1</property>
-                <property name="always-show-image">True</property>
-                <signal name="clicked" handler="solve_kn" swapped="no"/>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkAccelLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">0</property>
-              </packing>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-          </object>
-          <packing>
-            <property name="left-attach">1</property>
-            <property name="top-attach">1</property>
-          </packing>
-        </child>
-        <child>
           <object class="GtkBox">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
@@ -838,6 +800,9 @@
             <property name="left-attach">0</property>
             <property name="top-attach">9</property>
           </packing>
+        </child>
+        <child>
+          <placeholder/>
         </child>
         <child>
           <placeholder/>
