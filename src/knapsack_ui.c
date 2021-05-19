@@ -103,7 +103,7 @@ void on_load_clicked(){
         char *fn;
         fn = gtk_file_chooser_get_filename(chooser);
         Knapsack *k = load_knapsack(fn);
-
+        
         gtk_combo_box_set_active(GTK_COMBO_BOX(knapsackType), k->type);
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinnerTask), k->parts);
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinnerCapacity), k->capacity);
