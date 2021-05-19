@@ -54,6 +54,8 @@ N x N table with the distances between nodes</property>
             <property name="receives_default">True</property>
             <property name="tooltip_text" translatable="yes">This algorithm allows to optimally allocate a budget between various activities.
 
+Complexity O(n^2)
+
 Input: 
 A set of objects and a set of weights for each object and a maximum total value for the knapsack capacity.
 

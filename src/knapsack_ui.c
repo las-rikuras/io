@@ -97,7 +97,7 @@ void on_load_clicked(){
         if(k->type != UNBOUNDED)
             gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinnerMax), k->Q);
         set_task_values(k);                  //         NO  
-        setup_knapsack_from_file(k);         //         ME
+        setup_knapsack_from_file(k);         // 
         bounded_knapsack(k);                 //      SEPARES
 
         load_kn_on_table(k);
@@ -120,9 +120,9 @@ void on_save_clicked(){
         char *fn;
         fn = gtk_file_chooser_get_filename(chooser);
         Knapsack *knap = (Knapsack*)calloc(1,sizeof(Knapsack));
-        knap->parts = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spinnerTask));
-        knap->capacity = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spinnerCapacity));
-        knap->type = gtk_combo_box_get_active(GTK_COMBO_BOX(knapsackType));
+        knap->parts = task_number;
+        knap->capacity = capacity_number;
+        knap->type = type;
         
         if(knap->type == BOUNDED){
             knap->Q = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spinnerMax));
@@ -137,6 +137,7 @@ void on_save_clicked(){
             knap->tasks[i] = malloc(sizeof(knap_task));
         }
         get_task_values(knap);
+        printf("C: %d Max: %d\n", knap->capacity, knap->Q);
         save_knapsack(fn, knap);
         free(fn);
         free(knap);

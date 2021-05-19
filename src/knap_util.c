@@ -84,7 +84,7 @@ int save_knapsack(char *file_name, Knapsack *K){
         return -1;
     }
     fprintf(fp, "%d;\n", K->parts);
-    fprintf(fp, "%d;\n", K->capacity-1);
+    fprintf(fp, "%d;\n", K->capacity);
     fprintf(fp, "%d;\n", K->Q);
     fprintf(fp, "%d;\n", K->type);
 
