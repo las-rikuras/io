@@ -48,27 +48,24 @@ void set_task_values(){
 
 // tomar valores de tasks
 void get_task_values(Knapsack *k){
-    printf("SI 2.1 %d\n", k->parts);
     for(int i = 1; i <= k->parts; i++){
         GtkWidget *w_entry = gtk_grid_get_child_at(GTK_GRID(tasks), i                           , 2);
         GtkWidget *v_entry = gtk_grid_get_child_at(GTK_GRID(tasks), i, 1);
-        printf("SI 2.2\n");
+
         if(GTK_IS_ENTRY(w_entry) && GTK_IS_ENTRY(v_entry)){
             const char *value = gtk_entry_get_text(GTK_ENTRY(v_entry));
             const char *weight = gtk_entry_get_text(GTK_ENTRY(w_entry));
-            printf("SI 2.3\n");
+
             if(strlen(value) == 0){
                 value = gtk_entry_get_placeholder_text(GTK_ENTRY(v_entry));
             } 
-            printf("SI 2.4\n");
+
             if(strlen(weight) == 0){
                 weight = gtk_entry_get_placeholder_text(GTK_ENTRY(w_entry));
             } 
 
-            printf("i: %d value: %s weight %s\n", i, value, weight);
             k->tasks[i-1]->value = atoi(value);
             k->tasks[i-1]->weight = atoi(weight);
-            printf("SI 2.5\n");
         }
     }
 }
@@ -128,19 +125,17 @@ void on_save_clicked(){
         } else {
             knap->Q = 1;
         }
-        printf("SI\n");
+
         knap->tasks = malloc(knap->parts * sizeof(knap_task));
-        printf("SI2 %d\n", knap->parts);
+        for(int i = 0; i < knap->parts; i++){
+            knap->tasks[i] = malloc(sizeof(knap_task));
+        }
         get_task_values(knap);
-        printf("Si3\n");
         save_knapsack(fn, knap);
-        printf("SI4\n");
         free(fn);
         free(knap);
-        printf("SI5\n");
     }
     gtk_widget_destroy(dialog);
-    printf("SI6\n");
 }
 
 void on_combo_changed(GtkEntry *e){
