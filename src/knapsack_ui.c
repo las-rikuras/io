@@ -225,7 +225,7 @@ void on_task_changed(){
             sprintf(label, "%c", letter);
             insertEntryLabel(tasks, i, 0, NULL, label, 0, 1);
 
-            insertLabel(solution, i, 0, label, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = ?");
+            insertLabel(solution, i-1, 0, label, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = ?");
 
             insertLabel(z_grid, i*2-1, 0, "+", NULL);
             insertLabel(z_grid, i*2, 0, label, "<span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span>");
@@ -261,7 +261,7 @@ void on_task_changed(){
             gtk_grid_remove_column(GTK_GRID(knapsack_grid), i*2-1);
             gtk_grid_remove_column(GTK_GRID(subjects_grid), i*2-2);
             gtk_grid_remove_column(GTK_GRID(subjects_grid), i*2-3);
-            gtk_grid_remove_column(GTK_GRID(solution), i);
+            gtk_grid_remove_column(GTK_GRID(solution), i-1);
         }
     } 
     previous_task_number = task_number;
@@ -334,6 +334,7 @@ void load_kn_on_table(Knapsack *knap){
             }
         }
     }
+
     int **sol = get_solution(knap);
     int sol_number = 0;
     char markup[2048];
@@ -342,14 +343,15 @@ void load_kn_on_table(Knapsack *knap){
     const char * temp = gtk_entry_get_text(GTK_ENTRY(name));
     if(strlen(temp) == 0){
         const char *temp2 = gtk_entry_get_placeholder_text(GTK_ENTRY(name));
-        sprintf(markup, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = %d", temp2, sol[1][0]);
+        sprintf(markup, "<span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = %d", temp2, sol[1][0]);
     }
     else{
-        sprintf(markup, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = %d", temp, sol[1][0]);
+        sprintf(markup, "<span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = %d", temp, sol[1][0]);
     }
     gtk_label_set_markup(GTK_LABEL(label), markup);
     sol_number += knap->tasks[0]->value * sol[1][0];
-    for(int i = 1; i <= knap->parts; i++){
+
+    for(int i = 1; i < knap->parts; i++){
         sol_number += knap->tasks[i]->value * sol[1][i];
         label = gtk_grid_get_child_at(GTK_GRID(solution), i, 0);
         name = gtk_grid_get_child_at(GTK_GRID(tasks), i+1, 0);
@@ -363,6 +365,7 @@ void load_kn_on_table(Knapsack *knap){
         }
         gtk_label_set_markup(GTK_LABEL(label), markup);
     }
+
     sprintf(markup, "<b>Z = <span foreground=\"orange1\">%d</span></b>", sol_number);
     gtk_label_set_markup(GTK_LABEL(solution_label), markup);
 }
