@@ -92,6 +92,10 @@ int save_knapsack(char *file_name, Knapsack *K){
     for(int i = 0; i < K->parts; i++){
         fprintf(fp, "%d;%d;\n", K->tasks[i]->value, K->tasks[i]->weight);
     }
+
+    for(int i = 0; i < K->parts; i++){
+        fprintf(fp, "%d;\n", K->copies[i]);
+    }
     fclose(fp);
     return 0;
 }
@@ -141,6 +145,16 @@ Knapsack* load_knapsack(char *file_name){
         }
     }
 
+    K->copies = calloc(K->parts, sizeof(int));
+    for(int i = 0; i< K->parts; i++){
+        K->tasks[i] = malloc(sizeof(knap_task));
+        res = fscanf(fp, "%d;\n", &K->copies[i]);
+        if(res < 1){
+            printf("Incorrect file format\n");
+            exit(1);
+        }
+    }
+    
     fclose(fp);
     return K;
 }
