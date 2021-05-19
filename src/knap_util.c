@@ -12,6 +12,7 @@ typedef struct knapsack_struct {
     knap_task **tasks;
     int **knapsack;
     int **quantity;
+    int *copies;
     int capacity;
     int Q;
     int parts;

@@ -37,21 +37,8 @@ void bounded_knapsack(Knapsack *self){
     }
 }
 
-void setup_knapsack(Knapsack *self, int max, int p, int c, int *v, int *w){
-    self->Q = max;
-    self->capacity = c + 1;
-    self->parts = p;
-    self->tasks = malloc(p * sizeof(knap_task));
-    self->knapsack = init_matrix(self->capacity, p);
-    self->quantity = init_matrix(self->capacity, p);
-    for(int i = 0; i < p; i++){  
-        self->tasks[i] = malloc(sizeof(knap_task));
-        self->tasks[i]->value = v[i];
-        self->tasks[i]->weight = w[i];
-    }
-}
-
 void setup_knapsack_from_file(Knapsack *self){
+    self->copies = calloc(self->parts, sizeof(int));
     self->capacity = self->capacity + 1;
     self->knapsack = init_matrix(self->capacity, self->parts);
     self->quantity = init_matrix(self->capacity, self->parts);
