@@ -103,7 +103,7 @@ void on_load_clicked(){
         char *fn;
         fn = gtk_file_chooser_get_filename(chooser);
         Knapsack *k = load_knapsack(fn);
-        
+
         gtk_combo_box_set_active(GTK_COMBO_BOX(knapsackType), k->type);
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinnerTask), k->parts);
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinnerCapacity), k->capacity);
@@ -150,6 +150,8 @@ void on_save_clicked(){
         for(int i = 0; i < knap->parts; i++){
             knap->tasks[i] = malloc(sizeof(knap_task));
         }
+
+        knap->copies = malloc(knap->parts * sizeof(int));
         get_task_values(knap);
         save_knapsack(fn, knap);
         free(fn);
@@ -393,7 +395,7 @@ void solve_kn(GtkButton *button, gpointer user_data){
         knap->tasks[i] = malloc(sizeof(knap_task));
     }
 
-
+    knap->copies = malloc(knap->parts * sizeof(int));
     get_task_values(knap);                  //         NO  
     setup_knapsack_from_file(knap);         //         ME
     bounded_knapsack(knap);                 //      SEPARES

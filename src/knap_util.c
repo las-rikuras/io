@@ -92,7 +92,7 @@ int save_knapsack(char *file_name, Knapsack *K){
     }
 
     for(int i = 0; i < K->parts; i++){
-        fprintf(fp, "%d;\n", K->copies[i]);
+        fprintf(fp, "%d;", K->copies[i]);
     }
     fclose(fp);
     return 0;

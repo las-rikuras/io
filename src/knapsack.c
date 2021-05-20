@@ -56,14 +56,30 @@ int** get_solution(Knapsack *self){
     return sol;
 }
 
-//#define p 3
-// #define p 7
+void setup_knapsack(Knapsack *self, int max, int p, int c, int *v, int *w, int *copies){
+    self->Q = max;
+    self->capacity = c + 1;
+    self->parts = p;
+    self->copies = copies;
+    self->tasks = malloc(p * sizeof(knap_task));
+    self->knapsack = init_matrix(self->capacity, p);
+    self->quantity = init_matrix(self->capacity, p);
+    for(int i = 0; i < p; i++){  
+        self->tasks[i] = malloc(sizeof(knap_task));
+        self->tasks[i]->value = v[i];
+        self->tasks[i]->weight = w[i];
+    }
+}
 
 /*
+//#define p 3
+// #define p 7
+#define p 4
+
 int main(int argc, char *argv[]){
     // from file
-    Knapsack *K = load_knapsack("chirripo.kn");
-    setup_knapsack_from_file(K);
+    //Knapsack *K = load_knapsack("chirripo.kn");
+    //setup_knapsack_from_file(K);
     // from interface
  
     // int v[p] = {11, 7, 12};
@@ -74,17 +90,17 @@ int main(int argc, char *argv[]){
     // int w[p] = {3, 4, 2, 6, 7, 3, 5};
     // int cap = 15; 
     
-    int v[p] = {0, 0, 0, 0};
-    int w[p] = {1, 1, 1, 1};
+    int v[p] = {4, 3, 2, 1};
+    int w[p] = {4, 3, 2, 1};
+    int c[p] = {2, 2, 1, 1};
     int cap = 15; 
 
     Knapsack *K = (Knapsack*)calloc(1,sizeof(Knapsack));
-    setup_knapsack(K, 1, p, cap, v, w);
+    setup_knapsack(K, 1, p, cap, v, w, c);
     
-
     // ===================
     bounded_knapsack(K);
     print_knapsack(K);
-    //save_knapsack("chirripo3", K);
+    save_knapsack("knapsack1", K);
 }
 */
