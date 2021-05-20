@@ -61,10 +61,9 @@ void print_array(int *array, int n){
 void print_knapsack(Knapsack *K){
     printf("Parts: %d\n", K->parts);
     printf("Capacity: %d\n", K->capacity-1);
-    printf("Max: %d\n", K->Q);
     printf("====== Parts ======\n");
     for(int i = 0; i < K->parts; i++){
-        printf("Value: %d\tWeight: %d\n", K->tasks[i]->value, K->tasks[i]->weight);
+        printf("Value: %d\tWeight: %d\tCopies: %d\n", K->tasks[i]->value, K->tasks[i]->weight, K->copies[i]);
     }
     printf("===== Knapsack ====\n");
     print_matrix(K->knapsack, K->capacity, K->parts);
@@ -86,7 +85,6 @@ int save_knapsack(char *file_name, Knapsack *K){
     }
     fprintf(fp, "%d;\n", K->parts);
     fprintf(fp, "%d;\n", K->capacity);
-    fprintf(fp, "%d;\n", K->Q);
     fprintf(fp, "%d;\n", K->type);
 
     for(int i = 0; i < K->parts; i++){
@@ -94,7 +92,7 @@ int save_knapsack(char *file_name, Knapsack *K){
     }
 
     for(int i = 0; i < K->parts; i++){
-        fprintf(fp, "%d;\n", K->copies[i]);
+        fprintf(fp, "%d;", K->copies[i]);
     }
     fclose(fp);
     return 0;
@@ -121,12 +119,6 @@ Knapsack* load_knapsack(char *file_name){
         exit(1);
     }
 
-    res = fscanf(fp, "%d;\n", &K->Q);
-    if(res < 1){
-        printf("Incorrect file format\n");
-        exit(1);
-    }
-
     res = fscanf(fp, "%d;\n", &K->type);
     if(res < 1){
         printf("Incorrect file format\n");
@@ -145,9 +137,8 @@ Knapsack* load_knapsack(char *file_name){
         }
     }
 
-    K->copies = calloc(K->parts, sizeof(int));
+    K->copies = malloc(K->parts * sizeof(int));
     for(int i = 0; i< K->parts; i++){
-        K->tasks[i] = malloc(sizeof(knap_task));
         res = fscanf(fp, "%d;\n", &K->copies[i]);
         if(res < 1){
             printf("Incorrect file format\n");
