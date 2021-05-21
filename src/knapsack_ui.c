@@ -15,6 +15,7 @@ GtkWidget *z_grid;
 GtkWidget *subjects_grid;
 GtkWidget *x_sub_i;
 GtkWidget *solution_label;
+GtkWidget *restrictions;
 
 Knapsack *K;
 
@@ -49,6 +50,7 @@ void set_task_values(Knapsack *k){
             gtk_entry_set_text(GTK_ENTRY(c_entry), copies);
         }
     }
+
 }
 
 // tomar valores de tasks
@@ -101,6 +103,43 @@ void clear_kn(){
                 gtk_label_set_text(GTK_LABEL(label), "0");
             }
         }
+    }
+    gtk_label_set_markup(GTK_LABEL(solution_label), "<b>Z = <span foreground=\"orange1\">?</span></b>");
+
+    GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(tasks), 1, 0);
+    label = gtk_grid_get_child_at(GTK_GRID(solution), 0, 0);
+    const char *lab = gtk_entry_get_text(GTK_ENTRY(entry));
+    char markup[2048];
+    if(strlen(lab) == 0){
+        const char *placeholder = gtk_entry_get_placeholder_text(GTK_ENTRY(entry));
+        sprintf(markup, "<span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = ?", placeholder);
+        gtk_label_set_markup(GTK_LABEL(label), markup);
+    }
+    else{
+        sprintf(markup, "<span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = ?", lab);
+        gtk_label_set_markup(GTK_LABEL(label), markup);
+    }
+    for(int i = 2; i <= task_number; i++){
+        GtkWidget *entry = gtk_grid_get_child_at(GTK_GRID(tasks), i, 0);
+        label = gtk_grid_get_child_at(GTK_GRID(solution), (i-1), 0);
+        const char *lab = gtk_entry_get_text(GTK_ENTRY(entry));
+        char markup[2048];
+        if(strlen(lab) == 0){
+            const char *placeholder = gtk_entry_get_placeholder_text(GTK_ENTRY(entry));
+            sprintf(markup, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = ?", placeholder);
+            gtk_label_set_markup(GTK_LABEL(label), markup);
+        }
+        else{
+            sprintf(markup, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = ?", lab);
+            gtk_label_set_markup(GTK_LABEL(label), markup);
+        }
+    }
+
+}
+
+void remove_columns(GtkWidget *grid, int column, int last){
+    for(int j = last; j >= column; j--){
+        gtk_grid_remove_column(GTK_GRID(grid), j);
     }
 }
 
@@ -188,19 +227,42 @@ void on_combo_changed(GtkEntry *e){
     clear_kn();
     if(index == 1){
         type = BOUNDED; 
-        change_x_sub_i("... 1");
+        change_x_sub_i("≥ 0");
         insertLabel(tasks, 0, 3, "Copies", NULL);
         for(int j = 1; j <= task_number; j++){
             insertEntry(tasks, j, 3, NULL, "1", 1, 0, 2);
         }
+
+        GtkWidget *entry;
+        GtkWidget *label;
+        char markup[2048];
+        for(int i = 1; i <= task_number; i++){
+            entry = gtk_grid_get_child_at(GTK_GRID(tasks), i, 0);
+            label = gtk_label_new(NULL);
+            const char *lab = gtk_entry_get_text(GTK_ENTRY(entry));
+            if(strlen(lab) == 0){
+                const char *placeholder = gtk_entry_get_placeholder_text(GTK_ENTRY(entry));
+                sprintf(markup, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> ≤ 1", placeholder);
+                gtk_label_set_markup(GTK_LABEL(label), markup);
+            }
+            else{
+                sprintf(markup, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> ≤ 1", lab);
+                gtk_label_set_markup(GTK_LABEL(label), markup);
+            }
+            gtk_widget_show(label);
+            gtk_grid_attach(GTK_GRID(restrictions), label, i, 0, 1, 1);
+        }
+
     } else if (index == 2) {
         gtk_grid_remove_row(GTK_GRID(tasks), 3);
+        remove_columns(restrictions, 1, task_number);
         type = UNBOUNDED;
-        change_x_sub_i("... ∞");
+        change_x_sub_i("≥ 0");
     } else {
         type = BINARY;
         gtk_grid_remove_row(GTK_GRID(tasks), 3);
-        change_x_sub_i("o 1");
+        remove_columns(restrictions, 1, task_number);
+        change_x_sub_i("= 0 o 1");
     } 
 }
 
@@ -246,10 +308,32 @@ void weigth_change(GtkEditable *editable, gpointer data){
     change_on_z(subjects_grid, lab, val, (j-1)*2);
 }
 
+void copies_change(GtkEditable *editable, gpointer data){
+    GValue temp = G_VALUE_INIT;
+    g_value_init (&temp, G_TYPE_INT);
+    gtk_container_child_get_property(GTK_CONTAINER(tasks), GTK_WIDGET(editable), "left-attach", &temp);
+
+    int j = g_value_get_int(&temp);
+    const char *val = gtk_entry_get_text(GTK_ENTRY(editable));
+    GtkWidget *label = gtk_grid_get_child_at(GTK_GRID(tasks), j, 0);
+    const char *lab = gtk_entry_get_placeholder_text(GTK_ENTRY(label));
+    
+    GtkWidget *lab_restriction = gtk_grid_get_child_at(GTK_GRID(restrictions), j, 0);
+
+    char markup[2048];
+    if(atoi(val) == 1 || strlen(val) == 0){
+        sprintf(markup, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> ≤ 1", lab);
+        gtk_label_set_markup(GTK_LABEL(lab_restriction), markup);
+    }else{
+        sprintf(markup, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> ≤ %s", lab, val);
+        gtk_label_set_markup(GTK_LABEL(lab_restriction), markup);
+    }
+}
+
 void change_x_sub_i(char *val){
     char markup[2024];
     gtk_label_set_text(GTK_LABEL(x_sub_i), "");
-    sprintf(markup, "<span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub> i</sub></span> = 0 %s", val);
+    sprintf(markup, "<span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub> i</sub></span> %s", val);
     gtk_label_set_markup(GTK_LABEL(x_sub_i), markup);
 }
 
@@ -257,11 +341,18 @@ void on_task_changed(){
     task_number = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spinnerTask));
     if(task_number > previous_task_number){
         for(int i = previous_task_number+1; i <= task_number; i++){
-            char label[2048];
+            char label[100];
 
             int letter = 64+i;
             sprintf(label, "%c", letter);
             insertEntryLabel(tasks, i, 0, NULL, label, 0, 1);
+
+            GtkWidget *label_w = gtk_label_new(NULL);
+            char markup[2048];
+            sprintf(markup, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> ≤ 1", label);
+            gtk_label_set_markup(GTK_LABEL(label_w), markup);
+            gtk_widget_show(label_w);
+            gtk_grid_attach(GTK_GRID(restrictions), label_w, i, 0, 1, 1);
 
             insertLabel(solution, i-1, 0, label, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = ?");
 
@@ -287,7 +378,6 @@ void on_task_changed(){
             if(type == BOUNDED){
                 insertEntry(tasks, i, 3, NULL, label, 1, 0, 2);
             }
-
         }
     }
     else{ 
@@ -443,6 +533,7 @@ int main(int argc, char *argv[]){
     subjects_grid = GTK_WIDGET(gtk_builder_get_object(builder, "subjects_grid"));
     x_sub_i = GTK_WIDGET(gtk_builder_get_object(builder, "x_sub_i"));
     solution_label = GTK_WIDGET(gtk_builder_get_object(builder, "solution_label"));
+    restrictions = GTK_WIDGET(gtk_builder_get_object(builder, "restrictions"));
 
     gtk_combo_box_set_active(GTK_COMBO_BOX(knapsackType), 1);
     gtk_builder_connect_signals(builder, NULL);
