@@ -4,6 +4,7 @@
 
 void value_change(GtkEditable *editable, gpointer data);
 void weigth_change(GtkEditable *editable, gpointer data);
+void copies_change(GtkEditable *editable, gpointer data);
 
 void entry_number(GtkEditable *editable, const gchar *text, gint length, gint *position, gpointer data){
     GtkEntry*entry = GTK_ENTRY(editable);
@@ -40,7 +41,7 @@ void insertEntry(GtkWidget *grid, int i, int j, char *val, char *placeholder, in
         g_signal_connect(G_OBJECT(entry), "changed", G_CALLBACK(weigth_change), NULL);
     }
     else{
-        
+        g_signal_connect(G_OBJECT(entry), "changed", G_CALLBACK(copies_change), NULL);
     }
 
     if(val){

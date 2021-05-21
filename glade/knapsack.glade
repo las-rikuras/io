@@ -234,7 +234,7 @@
         <child>
           <object class="GtkScrolledWindow">
             <property name="name">a</property>
-            <property name="height-request">155</property>
+            <property name="height-request">165</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="margin-left">10</property>
@@ -247,6 +247,7 @@
               <object class="GtkViewport">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="margin-bottom">10</property>
                 <child>
                   <!-- n-columns=2 n-rows=4 -->
                   <object class="GtkGrid" id="tasks">
@@ -337,6 +338,7 @@
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="margin-bottom">5</property>
                         <property name="label" translatable="yes">Copies</property>
                         <property name="width-chars">10</property>
                       </object>
@@ -354,6 +356,7 @@
                         <property name="max-width-chars">3</property>
                         <property name="xalign">0.5</property>
                         <property name="placeholder-text" translatable="yes">1</property>
+                        <signal name="changed" handler="copies_change" swapped="no"/>
                         <signal name="insert-text" handler="entry_number" swapped="no"/>
                       </object>
                       <packing>
@@ -686,14 +689,39 @@
                     <property name="halign">center</property>
                     <property name="valign">center</property>
                     <child>
-                      <object class="GtkLabel" id="x_sub_i">
-                        <property name="height-request">20</property>
+                      <!-- n-columns=2 n-rows=1 -->
+                      <object class="GtkGrid" id="restrictions">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="halign">center</property>
-                        <property name="valign">center</property>
-                        <property name="label" translatable="yes">&lt;span foreground="orange1"&gt;x&lt;/span&gt;&lt;span foreground="#7dfffb" size="smaller"&gt;&lt;sub&gt; i&lt;/sub&gt;&lt;/span&gt; = 0 ... 1</property>
-                        <property name="use-markup">True</property>
+                        <property name="row-spacing">5</property>
+                        <property name="column-spacing">5</property>
+                        <child>
+                          <object class="GtkLabel" id="x_sub_i">
+                            <property name="height-request">20</property>
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="halign">center</property>
+                            <property name="valign">center</property>
+                            <property name="label" translatable="yes">&lt;span foreground="orange1"&gt;x&lt;/span&gt;&lt;span foreground="#7dfffb" size="smaller"&gt;&lt;sub&gt; i&lt;/sub&gt;&lt;/span&gt; ≥ 0</property>
+                            <property name="use-markup">True</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">0</property>
+                            <property name="top-attach">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">,  &lt;span foreground="orange1"&gt;x&lt;/span&gt;&lt;span foreground="#7dfffb" size="smaller"&gt;&lt;sub&gt;A&lt;/sub&gt;&lt;/span&gt; ≤ 1</property>
+                            <property name="use-markup">True</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">1</property>
+                            <property name="top-attach">0</property>
+                          </packing>
+                        </child>
                       </object>
                     </child>
                   </object>
