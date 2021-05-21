@@ -352,13 +352,15 @@ void on_task_changed(){
             sprintf(markup, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> ≤ 1", label);
             gtk_label_set_markup(GTK_LABEL(label_w), markup);
             gtk_widget_show(label_w);
-            gtk_grid_attach(GTK_GRID(restrictions), label_w, i, 0, 1, 1);
+            
+            if(type == BOUNDED)
+                gtk_grid_attach(GTK_GRID(restrictions), label_w, i, 0, 1, 1);
 
             insertLabel(solution, i-1, 0, label, ",  <span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span> = ?");
 
             insertLabel(z_grid, i*2-1, 0, "+", NULL);
             insertLabel(z_grid, i*2, 0, label, "<span foreground=\"orange1\">x</span><span foreground=\"#7dfffb\" size=\"smaller\"><sub>%s</sub></span>");
-
+            
             gtk_grid_insert_column(GTK_GRID(subjects_grid), (i-1)*2-1);
             gtk_grid_insert_column(GTK_GRID(subjects_grid), (i-1)*2-1);
 
