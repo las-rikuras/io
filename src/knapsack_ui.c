@@ -82,6 +82,10 @@ void get_task_values(Knapsack *k){
             else{
                 k->copies[i-1]= atoi(copies);
             }
+        } else {
+            for(int i = 0; i < k->parts; i++){
+                k->copies[i] = k->type == BINARY ? 1 : k->capacity;
+            }
         }
     }
 }
@@ -91,15 +95,13 @@ void clear_kn(){
     for(int i = 1; i <= capacity_number + 1; i++){
         for(int j = 1; j <= 2*task_number; j++){
             label = gtk_grid_get_child_at(GTK_GRID(knapsack_grid), j, i);
-            gtk_label_set_text(GTK_LABEL(label), "");
+            if(j%2 == 0){
+                gtk_label_set_text(GTK_LABEL(label), "");
+            } else {
+                gtk_label_set_text(GTK_LABEL(label), "0");
+            }
         }
     }
-
-    label = gtk_grid_get_child_at(GTK_GRID(knapsack_grid), 1, 1);
-    gtk_label_set_text(GTK_LABEL(label), "0");
-
-    label = gtk_grid_get_child_at(GTK_GRID(knapsack_grid), 1, 2);
-    gtk_label_set_text(GTK_LABEL(label), "0");
 }
 
 void clear_kn_handle(GtkButton *button, gpointer user_data){
@@ -183,6 +185,7 @@ void on_save_clicked(){
 
 void on_combo_changed(GtkEntry *e){
     int index = gtk_combo_box_get_active(GTK_COMBO_BOX(knapsackType));
+    clear_kn();
     if(index == 1){
         type = BOUNDED; 
         change_x_sub_i("... 1");
