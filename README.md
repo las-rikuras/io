@@ -5,15 +5,15 @@
 # Compilar
 
 make NAME=menu    
-make NAME=knapsak_ui   
+make NAME=knapsack_ui   
 make NAME=floyd   
 make NAME=pending   
 
 # Ejecutar
-./menu para ejecuar el menu principal   
+./menu para ejecutar el menu principal   
 
 # Utilizar
-- Todos los algoritmos tienen la opcion de crear y cargar archivos
+- Todos los algoritmos tienen la opción de crear y cargar archivos
 ## Knapsack
 - Seleccione el tipo que desea utilizar (BOUNDED, UNBOUNDED, 1/0)  
 - Ingrese la capacidad y la cantidad de objetos  
@@ -26,7 +26,7 @@ make NAME=pending
 - En la tabla D(0) ingrese la distancia entre cada nodo  
 - Para generar las otras tablas, presione next  
 - Presiones previous para devolverse  
-- Al llegar a la ultima tabla, se mostrara la ruta mas corta   
+- Al llegar a la última tabla, se mostrará la ruta mas corta   
 
 ## Series
 
@@ -35,3 +35,4 @@ make NAME=pending
 ## Reemplazo
 
 - Sin implementar
+
