@@ -390,6 +390,7 @@ void on_task_changed(){
             gtk_grid_remove_column(GTK_GRID(subjects_grid), i*2-2);
             gtk_grid_remove_column(GTK_GRID(subjects_grid), i*2-3);
             gtk_grid_remove_column(GTK_GRID(solution), i-1);
+            gtk_grid_remove_column(GTK_GRID(restrictions), i);
         }
     } 
     previous_task_number = task_number;
