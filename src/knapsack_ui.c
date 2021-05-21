@@ -86,6 +86,26 @@ void get_task_values(Knapsack *k){
     }
 }
 
+void clear_kn(){
+    GtkWidget *label;
+    for(int i = 1; i <= capacity_number + 1; i++){
+        for(int j = 1; j <= 2*task_number; j++){
+            label = gtk_grid_get_child_at(GTK_GRID(knapsack_grid), j, i);
+            gtk_label_set_text(GTK_LABEL(label), "");
+        }
+    }
+
+    label = gtk_grid_get_child_at(GTK_GRID(knapsack_grid), 1, 1);
+    gtk_label_set_text(GTK_LABEL(label), "0");
+
+    label = gtk_grid_get_child_at(GTK_GRID(knapsack_grid), 1, 2);
+    gtk_label_set_text(GTK_LABEL(label), "0");
+}
+
+void clear_kn_handle(GtkButton *button, gpointer user_data){
+    clear_kn();
+}
+
 void on_load_clicked(){
     GtkWidget *dialog;
     GtkFileChooser *chooser;
@@ -100,6 +120,7 @@ void on_load_clicked(){
     chooser = GTK_FILE_CHOOSER(dialog);
     res = gtk_dialog_run(GTK_DIALOG(dialog));
     if(res == GTK_RESPONSE_ACCEPT){
+        clear_kn();
         char *fn;
         fn = gtk_file_chooser_get_filename(chooser);
         Knapsack *k = load_knapsack(fn);
@@ -109,10 +130,10 @@ void on_load_clicked(){
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinnerCapacity), k->capacity);
        
         set_task_values(k);                  //         NO  
-        setup_knapsack_from_file(k);         // 
-        bounded_knapsack(k);                 //      SEPARES
+        //setup_knapsack_from_file(k);         // 
+        //bounded_knapsack(k);                 //      SEPARES
 
-        load_kn_on_table(k);
+        //load_kn_on_table(k);
         free(fn);
     }
     gtk_widget_destroy(dialog);  
@@ -260,7 +281,9 @@ void on_task_changed(){
             sprintf(label, "%c", val);
             insertEntry(tasks, i, 1, NULL, label, 1, 0, 1);
             insertEntry(tasks, i, 2, NULL, label, 1, 0, 0);
-            insertEntry(tasks, i, 3, NULL, label, 1, 0, 2);
+            if(type == BOUNDED){
+                insertEntry(tasks, i, 3, NULL, label, 1, 0, 2);
+            }
 
         }
     }
