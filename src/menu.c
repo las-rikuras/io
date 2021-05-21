@@ -39,3 +39,4 @@ void on_replacement_clicked(){
 void on_series_clicked(){
     system("./pending &");    
 }
+
