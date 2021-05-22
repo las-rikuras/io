@@ -67,6 +67,49 @@ void on_max_games_value_changed(){
     previous_game_number = game_number;
 }
 
+void on_load_clicked(){
+    GtkWidget *dialog;
+    GtkFileChooser *chooser;
+    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
+    gint res;
+    GtkFileFilter *filter;
+
+    dialog = gtk_file_chooser_dialog_new("Open File", GTK_WINDOW(window), action, "Cancel", GTK_RESPONSE_CANCEL, "Open", GTK_RESPONSE_ACCEPT, NULL);
+    filter = gtk_file_filter_new();
+    gtk_file_filter_add_pattern(filter, "*.sr");
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
+    chooser = GTK_FILE_CHOOSER(dialog);
+    res = gtk_dialog_run(GTK_DIALOG(dialog));
+    if(res == GTK_RESPONSE_ACCEPT){
+        char *fn;
+        fn = gtk_file_chooser_get_filename(chooser);
+        Series *S = load_series(fn);
+        init_series_from_file(S);
+
+        free(fn);
+    }
+    gtk_widget_destroy(dialog);  
+}
+
+void on_save_clicked(){
+    GtkWidget *dialog;
+    GtkFileChooser *chooser;
+    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_SAVE;
+    gint res;
+
+    dialog = gtk_file_chooser_dialog_new("Save File", GTK_WINDOW(window), action, "Cancel", GTK_RESPONSE_CANCEL, "Save", GTK_RESPONSE_ACCEPT, NULL);
+    chooser = GTK_FILE_CHOOSER(dialog);
+    gtk_file_chooser_set_current_name(chooser, "Untitled");
+    res = gtk_dialog_run(GTK_DIALOG(dialog));
+    if(res == GTK_RESPONSE_ACCEPT){
+        char *fn;
+        fn = gtk_file_chooser_get_filename(chooser);
+        
+        free(fn);
+    }
+    gtk_widget_destroy(dialog);
+}
+
 
 int main(int argc, char *argv[]){
     gtk_init(&argc, &argv);

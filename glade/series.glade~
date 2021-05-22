@@ -34,6 +34,7 @@
                 <property name="label" translatable="yes">Load</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-directory</property>
+                <signal name="clicked" handler="on_load_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -167,6 +168,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
                         <property name="use_stock">True</property>
                         <property name="image_position">bottom</property>
                         <property name="draw_indicator">True</property>
