@@ -70,18 +70,19 @@ void solve_series(Series *series){
     }
 }
 
+/*
 int main (){
     int n = 7;
     double p_h = 0.52;
     double p_r = 0.48;
     int format[7] = {1,1,1,1,0,0,0};
 
-    /*
+    
     int *format = (int*)calloc(n, sizeof(int));
     for(int i = 0; i < n; i++){
         format[i] = 1;
     }
-    */
+    
 
     Series *series = (Series*)calloc(1,sizeof(Series));
     init_Series(series, p_h, p_r, format, n);
@@ -92,3 +93,4 @@ int main (){
 
     return 0;
 }
+*/
