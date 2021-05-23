@@ -25,18 +25,18 @@ void on_exit_clicked(){
 }
 
 void on_floyd_clicked(){
-    system("./floyd &");
+    system("./exe/floyd_ui &");
 }
 
 void on_knapsack_clicked(){
-    system("./knapsack_ui &");
+    system("./exe/knapsack_ui &");
 }
 
 void on_replacement_clicked(){
-    system("./pending &");
+    system("./exe/pending_ui &");
 }
 
 void on_series_clicked(){
-    system("./pending &");    
+    system("./exe/series_ui &");    
 }
 
