@@ -1,0 +1,11 @@
+button.toggle:checked {
+    background: #333333;
+    border-color: #007A33;
+    border-width: 3px;
+}
+
+button.toggle {
+    background: darkgray;
+    border-color: #552583;
+    border-width: 3px;
+}

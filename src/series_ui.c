@@ -11,6 +11,10 @@ GtkWidget *s_grid;
 GtkWidget *format;
 GtkWidget *p_h_spin;
 GtkWidget *p_r_spin;
+GtkWidget *s_scroll;
+GtkWidget *format_scroll;
+GtkWidget *first_toggle;
+GtkWidget *toolbar;
 
 char *celtics_image = "src/util/celtics.png";
 char *lakers_image = "src/util/lakers.png";
@@ -18,17 +22,20 @@ char *lakers_image = "src/util/lakers.png";
 int game_number = 1;
 int previous_game_number = 1;
 
+void load_css(char *file, GtkWidget *widget);
+
 void load_series_on_table(Series *series){
     char markup [1024];
-    for(int i = 2; i <= series->n; i++){
-        for(int j = 2; j <= series->n; j++){
-            GtkWidget *label = gtk_grid_get_child_at(GTK_GRID(s_grid), j, i);
-            if(i == 2 && j == 2){
+    for(int i = 1; i <= series->n; i++){
+        for(int j = 1; j <= series->n; j++){
+            GtkWidget *label = gtk_grid_get_child_at(GTK_GRID(s_grid), j+1, i+1);
+            if(i == 1 && j == 1){
                 sprintf(markup, "<span foreground=\"#007A33\">%0.4f</span>", series->prob[i][j]);
             }
             else{
-                sprintf(markup, "<span foreground=\"#007A33\">%0.4f</span>", series->prob[i][j]);
+                sprintf(markup, "%0.4f", series->prob[i][j]);
             }
+            gtk_label_set_markup(GTK_LABEL(label), markup);
         }
     }
 }
@@ -41,10 +48,8 @@ Series *init_series_from_ui(){
     for(int i = 0; i < game_number; i++){
         GtkWidget *toggle_button = gtk_grid_get_child_at(GTK_GRID(format), i, 1);
         format_array[i] = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle_button));
-        printf("%d -> %d\n", i, format_array[i]);
     }
     init_series(series, p_h, p_r, format_array, game_number);
-    printf("Si\n");
     return series;
 }
 
@@ -90,6 +95,7 @@ void insert_toggle(GtkWidget *grid, int i, int j){
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle), 1);
     GtkWidget *image = gtk_image_new_from_file(celtics_image);
     g_signal_connect(G_OBJECT(toggle), "toggled", G_CALLBACK(toggle_serie), NULL);
+    load_css("css/toggle.css", toggle);
     gtk_container_add(GTK_CONTAINER(toggle), image);
     gtk_widget_show_all (GTK_WIDGET(toggle));
     gtk_grid_attach (GTK_GRID(grid), GTK_WIDGET(toggle), i, j, 1 ,1);
@@ -124,15 +130,15 @@ void on_max_games_value_changed(GtkSpinButton *spin_button, gpointer user_data){
             }
             for(int i = previous_game_number+1; i <= game_number; i++){
                 sprintf(label, "%d", i);
-                insert_label(format, i, 0, 4, label, NULL);
-                insert_toggle(format, i, 1);
+                insert_label(format, i-1, 0, 4, label, NULL);
+                insert_toggle(format, i-1, 1);
             }
         } else {
             for(int i = previous_game_number/2+1; i >= game_number/2+1; i--){
                 gtk_grid_remove_column(GTK_GRID(s_grid), i+2);
                 gtk_grid_remove_row(GTK_GRID(s_grid), i+2);
             }
-            for(int i = previous_game_number; i > game_number; i--){
+            for(int i = previous_game_number; i >= game_number; i--){
                 gtk_grid_remove_column(GTK_GRID(format), i);
             }
         }
@@ -183,6 +189,13 @@ void on_save_clicked(){
     gtk_widget_destroy(dialog);
 }
 
+void load_css(char *file, GtkWidget *widget){
+    GtkCssProvider *provider = gtk_css_provider_new ();
+    GtkStyleContext * context = gtk_widget_get_style_context(widget);
+    gtk_css_provider_load_from_path (provider, file, NULL);
+    gtk_style_context_add_provider (context, GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_USER);
+}
+
 int main(int argc, char *argv[]){
     gtk_init(&argc, &argv);
     builder = gtk_builder_new_from_file("glade/series.glade");
@@ -192,7 +205,16 @@ int main(int argc, char *argv[]){
     format = GTK_WIDGET(gtk_builder_get_object(builder, "format"));
     p_h_spin = GTK_WIDGET(gtk_builder_get_object(builder, "p_h_spin"));
     p_r_spin = GTK_WIDGET(gtk_builder_get_object(builder, "p_r_spin"));
-    
+    s_scroll = GTK_WIDGET(gtk_builder_get_object(builder, "s_scroll"));
+    format_scroll = GTK_WIDGET(gtk_builder_get_object(builder, "format_scroll"));
+    first_toggle = GTK_WIDGET(gtk_builder_get_object(builder, "first_toggle"));
+    toolbar = GTK_WIDGET(gtk_builder_get_object(builder, "toolbar"));
+    load_css("css/toggle.css", first_toggle);
+    load_css("css/background.css", s_scroll);
+    load_css("css/background.css", format_scroll);
+    load_css("css/background.css", window);
+    load_css("css/background.css", toolbar);
+
     gtk_builder_connect_signals(builder, NULL);
     g_object_unref(builder);
     gtk_widget_show(window);

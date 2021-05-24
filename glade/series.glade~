@@ -116,7 +116,7 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">&lt;i&gt;&lt;span foreground="#00ff00"&gt;p&lt;/span&gt;&lt;span foreground="#00ff00"&gt;&lt;sub&gt;h&lt;/sub&gt;&lt;/span&gt;&lt;/i&gt;</property>
+                <property name="label" translatable="yes">&lt;span foreground="#007A33"&gt;p&lt;/span&gt;&lt;span foreground="#007A33"&gt;&lt;sub&gt;h&lt;/sub&gt;&lt;/span&gt;</property>
                 <property name="use-markup">True</property>
               </object>
               <packing>
@@ -128,7 +128,7 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">&lt;i&gt;&lt;span foreground="#00ff00"&gt;p&lt;/span&gt;&lt;span foreground="#00ff00"&gt;&lt;sub&gt;r&lt;/sub&gt;&lt;/span&gt;&lt;/i&gt;</property>
+                <property name="label" translatable="yes">&lt;span foreground="#007A33"&gt;p&lt;/span&gt;&lt;span foreground="#007A33"&gt;&lt;sub&gt;r&lt;/sub&gt;&lt;/span&gt;</property>
                 <property name="use-markup">True</property>
               </object>
               <packing>
@@ -137,7 +137,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkSpinButton">
+              <object class="GtkSpinButton" id="p_h_spin">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="adjustment">float_ph</property>
@@ -152,7 +152,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkSpinButton">
+              <object class="GtkSpinButton" id="p_r_spin">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="adjustment">float_pr</property>
@@ -190,7 +190,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkScrolledWindow">
+          <object class="GtkScrolledWindow" id="format_scroll">
             <property name="width-request">800</property>
             <property name="height-request">104</property>
             <property name="visible">True</property>
@@ -222,7 +222,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkToggleButton">
+                      <object class="GtkToggleButton" id="first_toggle">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
@@ -265,7 +265,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkScrolledWindow">
+          <object class="GtkScrolledWindow" id="s_scroll">
             <property name="height-request">400</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
