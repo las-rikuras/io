@@ -165,8 +165,8 @@ int main (){
     Series *series = (Series*)calloc(1,sizeof(Series));
     init_Series(series, p_h, p_r, format, n);
 
-    Series *series = load_series("ejemplo1.sr");
-    init_series_from_file(series); 
+    //Series *series = load_series("ejemplo1.sr");
+    //init_series_from_file(series); 
 
     solve_series(series);
 
@@ -175,5 +175,5 @@ int main (){
     save_series("ejemplo1", series);
 
     return 0;
-}
+} 
 */
