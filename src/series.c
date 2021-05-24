@@ -23,7 +23,8 @@ void print_series(Series *series){
     }
 }
 
-void init_Series(Series *series, double p_h, double p_r, int *format, int n){
+/* This function  initialize a Series pointer */
+void init_series(Series *series, double p_h, double p_r, int *format, int n){
     series->p_h = p_h;
     series->p_r = p_r;
     series->n = (n/2)+1;
@@ -162,11 +163,8 @@ int main (){
     double p_r = 0.48;
     int format[7] = {1,1,1,1,0,0,0};
 
-    Series *series = (Series*)calloc(1,sizeof(Series));
-    init_Series(series, p_h, p_r, format, n);
-
-    //Series *series = load_series("ejemplo1.sr");
-    //init_series_from_file(series); 
+    Series *series = load_series("ejemplo1.sr");
+    init_series_from_file(series); 
 
     solve_series(series);
 
