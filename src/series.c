@@ -23,7 +23,8 @@ void print_series(Series *series){
     }
 }
 
-void init_Series(Series *series, double p_h, double p_r, int *format, int n){
+/* This function  initialize a Series pointer */
+void init_series(Series *series, double p_h, double p_r, int *format, int n){
     series->p_h = p_h;
     series->p_r = p_r;
     series->n = (n/2)+1;
