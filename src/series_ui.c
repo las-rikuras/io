@@ -29,7 +29,7 @@ void load_series_on_table(Series *series){
     for(int i = 1; i <= series->n; i++){
         for(int j = 1; j <= series->n; j++){
             GtkWidget *label = gtk_grid_get_child_at(GTK_GRID(s_grid), j+1, i+1);
-            if(i == 1 && j == 1){
+            if(i == series->n && j == series->n){
                 sprintf(markup, "<span foreground=\"#007A33\">%0.4f</span>", series->prob[i][j]);
             }
             else{
