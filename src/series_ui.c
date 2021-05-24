@@ -153,7 +153,7 @@ void on_max_games_value_changed(GtkSpinButton *spin_button, gpointer user_data){
 void on_p_h_spin_changed(GtkSpinButton *spin_button, gpointer user_data){
     double p_h = gtk_spin_button_get_value(GTK_SPIN_BUTTON(p_h_spin));
     char label[100];
-    sprintf(label, "<i><span foreground=\"#00ff00\">p</span><span foreground=\"#00ff00\"><sub>h</sub></span></i> = %.4lf", p_h);
+    sprintf(label, "<i><span foreground=\"#007A33\">p</span><span foreground=\"#007A33\"><sub>h</sub></span></i> = %.4lf", p_h);
     gtk_label_set_markup(GTK_LABEL(ph_celtics), label);
     sprintf(label, "<i><span foreground=\"#fdb927\">p</span><span foreground=\"#fdb927\"><sub>r</sub></span></i> = %.4lf", 1 - p_h);
     gtk_label_set_markup(GTK_LABEL(pr_lakers), label);
@@ -162,7 +162,7 @@ void on_p_h_spin_changed(GtkSpinButton *spin_button, gpointer user_data){
 void on_p_r_spin_changed(GtkSpinButton *spin_button, gpointer user_data){
     double p_r = gtk_spin_button_get_value(GTK_SPIN_BUTTON(p_r_spin));
     char label[100];
-    sprintf(label, "<i><span foreground=\"#00ff00\">p</span><span foreground=\"#00ff00\"><sub>r</sub></span></i> = %.4lf", p_r);
+    sprintf(label, "<i><span foreground=\"#007A33\">p</span><span foreground=\"#007A33\"><sub>r</sub></span></i> = %.4lf", p_r);
     gtk_label_set_markup(GTK_LABEL(pr_celtics), label);
     sprintf(label, "<i><span foreground=\"#fdb927\">p</span><span foreground=\"#fdb927\"><sub>h</sub></span></i> = %.4lf", 1 - p_r);
     gtk_label_set_markup(GTK_LABEL(ph_lakers), label);
