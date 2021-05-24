@@ -186,7 +186,15 @@ void on_load_clicked(){
         fn = gtk_file_chooser_get_filename(chooser);
         Series *S = load_series(fn);
         init_series_from_file(S);
-
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(p_h_spin), S->p_h);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(p_r_spin), S->p_r);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(games_spinner), S->n * 2 - 1);
+        for(int i = 0; i < S->n * 2 - 1; i++){
+            GtkWidget *toggle_button = gtk_grid_get_child_at(GTK_GRID(format), i, 1);
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), S->format[i]);
+        }
+        solve_series(S);
+        load_series_on_table(S);
         free(fn);
     }
     gtk_widget_destroy(dialog);  
@@ -205,7 +213,8 @@ void on_save_clicked(){
     if(res == GTK_RESPONSE_ACCEPT){
         char *fn;
         fn = gtk_file_chooser_get_filename(chooser);
-        
+        Series *S = init_series_from_ui();
+        save_series(fn, S);   
         free(fn);
     }
     gtk_widget_destroy(dialog);
