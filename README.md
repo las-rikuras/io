@@ -4,10 +4,7 @@
 
 # Compilar
 
-make NAME=menu    
-make NAME=knapsack_ui   
-make NAME=floyd   
-make NAME=pending   
+make 
 
 # Ejecutar
 ./menu para ejecutar el menu principal   
@@ -30,7 +27,9 @@ make NAME=pending
 
 ## Series
 
-- Sin implementar   
+- Ingrese la cantidad de juegos
+- En p_h y p_r puede cambiar las probabilidades de jugar en casa o jugar de visita respectivamente
+- Presione solve para generar la tabla de probabilidades
 
 ## Reemplazo
 
