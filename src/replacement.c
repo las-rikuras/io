@@ -10,21 +10,11 @@ typedef struct time_unit_struct {
 
 typedef struct replacement_struct {
     Unit **time_units;
-    int ***g;
+    int **g;
     int initial_cost;
     int equipment_lifetime;
     int project_lifetime;
 } Replacement;
-
-void print_replacement(Replacement *R){
-    printf("Project duration: %d\n", R->project_lifetime);
-    printf("Initial Cost: %d\n", R->initial_cost);
-    printf("Equipment lifetime: %d\n", R->equipment_lifetime);
-
-    printf("Equipment");
-    for(int i = 0; i < R->equipment_lifetime; i++)
-        printf("Maintenance: %d Resale %d\n", R->time_units[i]->maintenance, R->time_units[i]->resale_price);
-}
 
 int c(Replacement *R, int t, int x){
     int n = x - t;
@@ -46,32 +36,59 @@ int g(Replacement *R, int x, int t){
     return c(R, t, t+1) + g(R, t, t+1);  
 }
 
-int fill_g(Replacement *R){
+
+int get_min(Replacement *R, int **matrix, int col){
+    int min = matrix[0][col];
+    for(int i = 1; i < R->equipment_lifetime; i++){
+        if(matrix[i][col] != -1 && matrix[i][col] < min)
+            min = matrix[i][col];
+    }
+    return min;
+}
+
+int** fill_g(Replacement *R){
     int n = R->project_lifetime + 1;
     int m = R->equipment_lifetime;
 
     int **matrix = calloc(m, sizeof(int));
-    for(int i = 0; i < m; i++){
+    for(int i = 0; i < m; i++)
         matrix[i] = calloc(n, sizeof(int));
+    
+    for(int i = 0; i < m; i++){
         for(int j = 0; j < n; j++)
             matrix[i][j] = -1;
     }
-    printf("Caca\n");
+
     int x = 0;
-    matrix[m][0] = 0;
-    for(int j = n-1; j > 0; j--){
-        while(x < R->equipment_lifetime - j){
-            printf("x = %d, t = %d\n", x, j);
-            matrix[j][x] = matrix[j+1][x] + c(R,j,x);
+    matrix[x][n-1] = 0;
+    int dif;
+    for(int t = n-2; t >= 0; t--){
+        dif = R->project_lifetime - t <= R->equipment_lifetime ? R->project_lifetime - t : R->equipment_lifetime;
+        while(x < dif){
+            matrix[x][t] = get_min(R, matrix, t+x+1) + c(R,t,t+x+1);
+            //printf("[%d][%d] = C[%d][%d] = %d + min(G(%d)) = %d\n", x, t, t, t+x+1, c(R,t,t+x+1), t+1, get_min(R, matrix, t+1));
+            //printf("[%d][%d] =  %d + %d\n", x, t, c(R,t,t+x+1), get_min(R, matrix, t+1));
             x++;
         }
+        x = 0;
     }
-
-    for(int i = 0; i < m; i++){
-        for(int j = 0; j < n; j++)
-            printf("G(%d) = %d", i, matrix[i][j]);
-    }
+    return matrix;
 }
+
+void print_replacement(Replacement *R){
+    printf("Project duration: %d\n", R->project_lifetime);
+    printf("Initial Cost: %d\n", R->initial_cost);
+    printf("Equipment lifetime: %d\n", R->equipment_lifetime);
+
+    printf("Equipment\n");
+    for(int i = 0; i < R->equipment_lifetime; i++)
+        printf("Maintenance: %d Resale %d\n", R->time_units[i]->maintenance, R->time_units[i]->resale_price);
+
+    printf("\n");
+    for(int i = R->project_lifetime; i >= 0; i--)
+        printf("G(%d) = %d\n", i, get_min(R, R->g, i));
+}
+
 
 void init_replacement(Replacement *R, int initial_cost, int equipment_lifetime, int project_lifetime, int **time_units){
     R->initial_cost = initial_cost;
@@ -84,6 +101,7 @@ void init_replacement(Replacement *R, int initial_cost, int equipment_lifetime, 
         R->time_units[i]->maintenance = time_units[i][0];
         R->time_units[i]->resale_price = time_units[i][1];
     }   
+    R->g = fill_g(R);
 }
 
 int main(){
