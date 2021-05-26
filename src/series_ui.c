@@ -19,6 +19,7 @@ GtkWidget *s_scroll;
 GtkWidget *format_scroll;
 GtkWidget *first_toggle;
 GtkWidget *toolbar;
+GtkWidget *format_label;
 
 char *celtics_image = "src/util/celtics.png";
 char *lakers_image = "src/util/lakers.png";
@@ -27,6 +28,59 @@ int game_number = 1;
 int previous_game_number = 1;
 
 void load_css(char *file, GtkWidget *widget);
+
+void update_format_label(){
+    char label[1024];
+    memset(label,0,strlen(label));
+    char markup[2048];
+
+    GtkWidget *toggle = gtk_grid_get_child_at(GTK_GRID(format), 0, 1);
+    int current_team = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle));
+    int previous_team = current_team;
+
+    int i;
+    int games_count = 1;
+
+    for(i = 1; i < game_number; i++){
+        previous_team = current_team;
+        toggle = gtk_grid_get_child_at(GTK_GRID(format), i, 1);
+        current_team = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle));
+        if(current_team != previous_team)
+            break;
+        games_count++;
+    }
+
+    if(previous_team)
+        sprintf(markup, "<span foreground=\"#007A33\" size=\"large\">%d</span>", games_count);
+    else 
+        sprintf(markup, "<span foreground=\"#552583\" size=\"large\">%d</span>", games_count);
+    strcat(label, markup);
+
+    games_count = 0;
+    for(i; i < game_number; i++){
+        previous_team = current_team;
+        toggle = gtk_grid_get_child_at(GTK_GRID(format), i, 1);
+        current_team = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle));
+        if(current_team != previous_team){
+            if(previous_team)
+                sprintf(markup, "<span foreground=\"black\"> - </span><span foreground=\"#007A33\" size=\"large\">%d</span>", games_count);
+            else 
+                sprintf(markup, "<span foreground=\"black\"> - </span><span foreground=\"#552583\" size=\"large\">%d</span>", games_count);
+            strcat(label, markup);
+            games_count = 0;
+        }
+        games_count++;
+        if(i+1 == game_number){
+            if(current_team)
+                sprintf(markup, "<span foreground=\"black\"> - </span><span foreground=\"#007A33\" size=\"large\">%d</span>", games_count);
+            else 
+                sprintf(markup, "<span foreground=\"black\"> - </span><span foreground=\"#552583\" size=\"large\">%d</span>", games_count);
+            strcat(label, markup);
+        }
+    }
+    sprintf(markup, "<span background=\"lightgrey\">%s</span>", label);
+    gtk_label_set_markup(GTK_LABEL(format_label), markup);
+}
 
 void load_series_on_table(Series *series){
     char markup [1024];
@@ -75,6 +129,7 @@ void toggle_serie(GtkToggleButton *togglebutton, gpointer user_data){
     }else{
         gtk_image_set_from_file(GTK_IMAGE(image), lakers_image);
     }
+    update_format_label();
 }
 
 void insert_label(GtkWidget *grid, int i, int j, int width, char *val, char *markup){
@@ -148,23 +203,24 @@ void on_max_games_value_changed(GtkSpinButton *spin_button, gpointer user_data){
         }
         previous_game_number = game_number;
     }
+    update_format_label();
 }
 
 void on_p_h_spin_changed(GtkSpinButton *spin_button, gpointer user_data){
     double p_h = gtk_spin_button_get_value(GTK_SPIN_BUTTON(p_h_spin));
-    char label[100];
-    sprintf(label, "<i><span foreground=\"#007A33\">p</span><span foreground=\"#007A33\"><sub>h</sub></span></i> = %.4lf", p_h);
+    char label[120];
+    sprintf(label, "<i><span size=\"larger\" foreground=\"#007A33\">p</span><span foreground=\"#007A33\"><sub>h</sub></span></i> = %.4lf", p_h);
     gtk_label_set_markup(GTK_LABEL(ph_celtics), label);
-    sprintf(label, "<i><span foreground=\"#fdb927\">p</span><span foreground=\"#fdb927\"><sub>r</sub></span></i> = %.4lf", 1 - p_h);
+    sprintf(label, "<i><span size=\"larger\" foreground=\"#fdb927\">p</span><span foreground=\"#fdb927\"><sub>r</sub></span></i>  = %.4lf", 1 - p_h);
     gtk_label_set_markup(GTK_LABEL(pr_lakers), label);
 }
 
 void on_p_r_spin_changed(GtkSpinButton *spin_button, gpointer user_data){
     double p_r = gtk_spin_button_get_value(GTK_SPIN_BUTTON(p_r_spin));
-    char label[100];
-    sprintf(label, "<i><span foreground=\"#007A33\">p</span><span foreground=\"#007A33\"><sub>r</sub></span></i> = %.4lf", p_r);
+    char label[120];
+    sprintf(label, "<i><span size=\"larger\" foreground=\"#007A33\">p</span><span foreground=\"#007A33\"><sub>r</sub></span></i>  = %.4lf", p_r);
     gtk_label_set_markup(GTK_LABEL(pr_celtics), label);
-    sprintf(label, "<i><span foreground=\"#fdb927\">p</span><span foreground=\"#fdb927\"><sub>h</sub></span></i> = %.4lf", 1 - p_r);
+    sprintf(label, "<i><span size=\"larger\" foreground=\"#fdb927\">p</span><span foreground=\"#fdb927\"><sub>h</sub></span></i> = %.4lf", 1 - p_r);
     gtk_label_set_markup(GTK_LABEL(ph_lakers), label);
 }
 
@@ -240,6 +296,7 @@ int main(int argc, char *argv[]){
     ph_celtics = GTK_WIDGET(gtk_builder_get_object(builder, "ph_celtics"));
     pr_lakers = GTK_WIDGET(gtk_builder_get_object(builder, "pr_lakers"));
     ph_lakers = GTK_WIDGET(gtk_builder_get_object(builder, "ph_lakers"));
+    format_label = GTK_WIDGET(gtk_builder_get_object(builder, "format_label"));
      
     s_scroll = GTK_WIDGET(gtk_builder_get_object(builder, "s_scroll"));
     format_scroll = GTK_WIDGET(gtk_builder_get_object(builder, "format_scroll"));
