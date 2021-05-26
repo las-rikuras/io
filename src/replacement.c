@@ -10,6 +10,7 @@ typedef struct time_unit_struct {
 
 typedef struct replacement_struct {
     Unit **time_units;
+    int ***g;
     int initial_cost;
     int equipment_lifetime;
     int project_lifetime;
@@ -33,20 +34,43 @@ int c(Replacement *R, int t, int x){
     return R->initial_cost + maintenance - R->time_units[n-1]->resale_price;
 }
 
-int*** g(Replacement *R, int t){
+int g(Replacement *R, int x, int t){
     // G(5) = 0
     // G(4) = C(4,5) + G(5)
     // G(3) = C(3,4) + G(4)
     //        C(3, 5) + G(5)
-
     if(t == R->project_lifetime)
         return 0;
 
-    int year = t+1;
-    while(year < R->equipment_lifetime){
+    printf("c[%d][%d](%d) + G(%d)(%d)\n", x, t+1, c(R, x, t+1), t+1, g(R, x, t+1));
+    return c(R, t, t+1) + g(R, t, t+1);  
+}
 
-    }    
-    return year;
+int fill_g(Replacement *R){
+    int n = R->project_lifetime + 1;
+    int m = R->equipment_lifetime;
+
+    int **matrix = calloc(m, sizeof(int));
+    for(int i = 0; i < m; i++){
+        matrix[i] = calloc(n, sizeof(int));
+        for(int j = 0; j < n; j++)
+            matrix[i][j] = -1;
+    }
+    printf("Caca\n");
+    int x = 0;
+    matrix[m][0] = 0;
+    for(int j = n-1; j > 0; j--){
+        while(x < R->equipment_lifetime - j){
+            printf("x = %d, t = %d\n", x, j);
+            matrix[j][x] = matrix[j+1][x] + c(R,j,x);
+            x++;
+        }
+    }
+
+    for(int i = 0; i < m; i++){
+        for(int j = 0; j < n; j++)
+            printf("G(%d) = %d", i, matrix[i][j]);
+    }
 }
 
 void init_replacement(Replacement *R, int initial_cost, int equipment_lifetime, int project_lifetime, int **time_units){
@@ -85,9 +109,5 @@ int main(){
     init_replacement(R, initial_cost, equipment_lifetime, project_lifetime, matrix);
     print_replacement(R);
 
-    printf("\n%d\n", c(R, 2, 4));
-
-    for(int i = 0; i <= R->project_lifetime; i++)
-        printf("G(%d) %d\n", i, g(R, i));
-
+    fill_g(R);
 }
