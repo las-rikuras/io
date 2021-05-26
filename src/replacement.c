@@ -11,6 +11,7 @@ typedef struct time_unit_struct {
 typedef struct replacement_struct {
     Unit **time_units;
     int **g;
+    int **changes;
     int initial_cost;
     int equipment_lifetime;
     int project_lifetime;
@@ -24,24 +25,25 @@ int c(Replacement *R, int t, int x){
     return R->initial_cost + maintenance - R->time_units[n-1]->resale_price;
 }
 
-int g(Replacement *R, int x, int t){
-    // G(5) = 0
-    // G(4) = C(4,5) + G(5)
-    // G(3) = C(3,4) + G(4)
-    //        C(3, 5) + G(5)
-    if(t == R->project_lifetime)
-        return 0;
-
-    printf("c[%d][%d](%d) + G(%d)(%d)\n", x, t+1, c(R, x, t+1), t+1, g(R, x, t+1));
-    return c(R, t, t+1) + g(R, t, t+1);  
+int** init_matrix(int n, int m){
+    int **matrix = calloc(n, sizeof(int*));
+    for(int i = 0; i < n; i++){
+        matrix[i] = calloc(m, sizeof(int));
+    }
+    return matrix;
 }
-
 
 int get_min(Replacement *R, int **matrix, int col){
     int min = matrix[0][col];
+    int old = min;
     for(int i = 1; i < R->equipment_lifetime; i++){
         if(matrix[i][col] != -1 && matrix[i][col] < min)
             min = matrix[i][col];
+    }
+
+    for(int i = 0; i < R->equipment_lifetime; i++){
+        if(matrix[i][col] != -1 && matrix[i][col] == min && col != R->project_lifetime)
+            R->changes[i][col] = 1;
     }
     return min;
 }
@@ -50,9 +52,7 @@ int** fill_g(Replacement *R){
     int n = R->project_lifetime + 1;
     int m = R->equipment_lifetime;
 
-    int **matrix = calloc(m, sizeof(int));
-    for(int i = 0; i < m; i++)
-        matrix[i] = calloc(n, sizeof(int));
+    int **matrix = init_matrix(n, m);
     
     for(int i = 0; i < m; i++){
         for(int j = 0; j < n; j++)
@@ -87,6 +87,14 @@ void print_replacement(Replacement *R){
     printf("\n");
     for(int i = R->project_lifetime; i >= 0; i--)
         printf("G(%d) = %d\n", i, get_min(R, R->g, i));
+
+    printf("\nChanges\n");
+    for(int i = 0; i < R->equipment_lifetime; i++){
+        for(int j = 0; j < R->project_lifetime+1; j++){
+            printf("%d ", R->changes[i][j]);
+        }
+        printf("\n");
+    }
 }
 
 
@@ -101,6 +109,7 @@ void init_replacement(Replacement *R, int initial_cost, int equipment_lifetime, 
         R->time_units[i]->maintenance = time_units[i][0];
         R->time_units[i]->resale_price = time_units[i][1];
     }   
+    R->changes = init_matrix(R->project_lifetime + 1, R->equipment_lifetime);
     R->g = fill_g(R);
 }
 
