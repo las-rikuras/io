@@ -48,6 +48,26 @@ int get_min(Replacement *R, int **matrix, int col){
     return min;
 }
 
+int get_next_nodes_size(Replacement *R, int time_unit){
+    int n = 0;
+    for(int i = 0; i < R->equipment_lifetime; i++){
+        if(R->changes[i][time_unit])
+            n++;
+    }  
+    return n; 
+}
+
+int** get_next_nodes(Replacement *R, int time_unit){
+    int n = get_next_nodes_size(R, time_unit);
+    int *res = calloc(n, sizeof(int));
+    int  index = 0;
+    for(int i = 0; i < R->equipment_lifetime; i++){
+        if(R->changes[i][time_unit])
+            res[index++] = time_unit + i + 1;          
+    }
+    return res;
+}
+
 int** fill_g(Replacement *R){
     int n = R->project_lifetime + 1;
     int m = R->equipment_lifetime;
@@ -66,8 +86,6 @@ int** fill_g(Replacement *R){
         dif = R->project_lifetime - t <= R->equipment_lifetime ? R->project_lifetime - t : R->equipment_lifetime;
         while(x < dif){
             matrix[x][t] = get_min(R, matrix, t+x+1) + c(R,t,t+x+1);
-            //printf("[%d][%d] = C[%d][%d] = %d + min(G(%d)) = %d\n", x, t, t, t+x+1, c(R,t,t+x+1), t+1, get_min(R, matrix, t+1));
-            //printf("[%d][%d] =  %d + %d\n", x, t, c(R,t,t+x+1), get_min(R, matrix, t+1));
             x++;
         }
         x = 0;
