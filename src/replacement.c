@@ -35,7 +35,6 @@ int** init_matrix(int n, int m){
 
 int get_min(Replacement *R, int **matrix, int col){
     int min = matrix[0][col];
-    int old = min;
     for(int i = 1; i < R->equipment_lifetime; i++){
         if(matrix[i][col] != -1 && matrix[i][col] < min)
             min = matrix[i][col];
@@ -57,7 +56,7 @@ int get_next_nodes_size(Replacement *R, int time_unit){
     return n; 
 }
 
-int** get_next_nodes(Replacement *R, int time_unit){
+int* get_next_nodes(Replacement *R, int time_unit){
     int n = get_next_nodes_size(R, time_unit);
     int *res = calloc(n, sizeof(int));
     int  index = 0;
