@@ -130,6 +130,7 @@ void init_replacement(Replacement *R, int initial_cost, int equipment_lifetime, 
     R->g = fill_g(R);
 }
 
+/*
 int main(){
     int equipment_lifetime = 3;
     int initial_cost = 500;
@@ -155,3 +156,4 @@ int main(){
 
     fill_g(R);
 }
+*/
