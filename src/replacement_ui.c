@@ -125,6 +125,22 @@ void on_project_lifetime_spin_value_changed(GtkSpinButton *spin_button, gpointer
     project_lifetime = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(project_spin));
 }
 
+void load_next_nodes(Replacement *R){
+    /*
+        Carga el array para los saltos que puede dar
+    */
+}
+
+void load_analysis(Replacement *R){
+    /*
+        Carga lo del analisis
+        Son tres columnas
+        Ver como acomodar el array de load_next_nodes que va en
+        la ultima columna
+        los otros dos se cargan facil
+    */
+}
+
 Replacement *init_from_ui(){
     Replacement *R = malloc(sizeof(Replacement));
     R->initial_cost = cost;
