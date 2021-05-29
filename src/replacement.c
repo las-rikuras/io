@@ -130,6 +130,73 @@ void init_replacement(Replacement *R, int initial_cost, int equipment_lifetime, 
     R->g = fill_g(R);
 }
 
+void init_replacement_from_file(Replacement *R){  
+    R->changes = init_matrix(R->project_lifetime + 1, R->equipment_lifetime);
+    R->g = fill_g(R);
+}
+
+int save_replacement(char *file_name, Replacement *R){
+    char *fn = malloc((strlen(file_name) + 5));
+    strcpy(fn, file_name);
+    strcat(fn, ".rp");
+    FILE *fp = fopen(fn, "w");
+
+    if (fp == NULL) {
+        printf("Error saving file!\n");
+        return -1;
+    }
+    fprintf(fp, "%d;\n", R->initial_cost);
+    fprintf(fp, "%d;\n", R->project_lifetime);
+    fprintf(fp, "%d;\n", R->equipment_lifetime);
+
+    for(int i = 0; i < R->equipment_lifetime; i++){
+        fprintf(fp, "%d;%d;\n", R->time_units[i]->maintenance, R->time_units[i]->resale_price);
+    }
+
+    fclose(fp);
+    return 0;
+}
+
+Replacement* load_replacement(char *file_name){
+    FILE *fp = fopen(file_name, "r");
+    if (fp == NULL){
+        printf("File doesn't exits\n");
+        exit(1);
+    }
+    int res;
+    Replacement *R = malloc(sizeof(Replacement));
+
+    res = fscanf(fp, "%d;\n", &R->initial_cost);
+    if(res < 1){
+        printf("Incorrect file format\n");
+        exit(1);
+    }
+
+    res = fscanf(fp, "%d;\n", &R->project_lifetime);
+    if(res < 1){
+        printf("Incorrect file format\n");
+        exit(1);
+    }
+
+    res = fscanf(fp, "%d;\n", &R->equipment_lifetime);
+    if(res < 1){
+        printf("Incorrect file format\n");
+        exit(1);
+    }
+
+    R->time_units = malloc(R->equipment_lifetime * sizeof(Unit));
+    for(int i = 0; i < R->equipment_lifetime; i++){
+        R->time_units[i] = malloc(sizeof(Unit));
+        res = fscanf(fp, "%d;%d;\n", &R->time_units[i]->maintenance, &R->time_units[i]->resale_price);
+        if(res < 1){
+            printf("Incorrect file format\n");
+            exit(1);
+        }
+    }
+    fclose(fp);
+    return R;
+}
+
 /*
 int main(){
     int equipment_lifetime = 3;
@@ -155,5 +222,8 @@ int main(){
     print_replacement(R);
 
     fill_g(R);
+
+    save_replacement("ejemplo1", R);
+    load_replacement("ejemplo1.rp");
 }
 */

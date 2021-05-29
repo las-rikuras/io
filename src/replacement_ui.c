@@ -12,24 +12,70 @@ GtkWidget *analysis_g;
 
 int equipment_lifetime = 1;
 int previous_equipment_lifetime = 1;
+int project_lifetime = 1;
+int cost = 400;
 
-Replacement *init_from_ui(){
-    Replacement *R = malloc(sizeof(Replacement));
-
-    return R;
+void load_time_units(Replacement *R){
+    char markup [1024];
+    for(int i = 0; i < R->equipment_lifetime; i++){
+        GtkWidget *maint = gtk_grid_get_child_at(GTK_GRID(time_units_g), 1, i + 1);
+        GtkWidget *resale = gtk_grid_get_child_at(GTK_GRID(time_units_g), 2, i + 1);
+        sprintf(markup, "%d", R->time_units[i]->maintenance);
+        gtk_entry_set_text(GTK_ENTRY(maint), markup);
+        sprintf(markup, "%d", R->time_units[i]->resale_price);
+        gtk_entry_set_text(GTK_ENTRY(resale), markup);
+    }
 }
 
-void solve_replacement(GtkButton *button, gpointer user_data){
+Unit** get_time_units(){
+    Unit **time_units = calloc(equipment_lifetime, sizeof(Unit));
+    for(int i = 0; i < equipment_lifetime; i++){
+        time_units[i] = malloc(sizeof(Unit)); // 0 = maint. 1 = resale
+        GtkWidget *maint = gtk_grid_get_child_at(GTK_GRID(time_units_g), 1, i + 1);
+        GtkWidget *resale = gtk_grid_get_child_at(GTK_GRID(time_units_g), 2, i + 1);
 
+        const char *val = gtk_entry_get_text(GTK_ENTRY(maint));
+        time_units[i]->maintenance = atoi(val);
+
+        val = gtk_entry_get_text(GTK_ENTRY(resale));
+        time_units[i]->resale_price = atoi(val);
+    }  
+    return time_units;
+} 
+
+void entry_number(GtkEditable *editable, const gchar *text, gint length, gint *position, gpointer data){
+    GtkEntry*entry = GTK_ENTRY(editable);
+    const char *current_text = gtk_entry_get_text(entry);
+    if(strlen(current_text) != 0){
+        for (int i = 0; i < length; i++) {
+            if (!isdigit(text[i])) {
+                g_signal_stop_emission_by_name(G_OBJECT(editable), "insert-text");
+                return;
+            }
+        }
+    }
+    else{
+        if (!isdigit(text[0]) || text[0] == '0') {
+            g_signal_stop_emission_by_name(G_OBJECT(editable), "insert-text");
+            return;
+        } 
+    }
 }
 
-void load_on_time_units(){
-
+void insert_entry(GtkWidget *grid, int i, int j, int width, char *placeholder){
+    GtkWidget *entry = gtk_entry_new();
+    gtk_entry_set_width_chars (GTK_ENTRY(entry), width);
+    gtk_entry_set_placeholder_text(GTK_ENTRY(entry), placeholder);
+    gtk_entry_set_alignment (GTK_ENTRY(entry), 0.5);
+    g_signal_connect(G_OBJECT(entry), "insert_text", G_CALLBACK(entry_number), NULL);
+    gtk_widget_show (GTK_WIDGET(entry));
+    gtk_grid_attach (GTK_GRID(grid), GTK_WIDGET(entry), i, j, 1 ,1);
 }
-
 
 void insert_label(GtkWidget *grid, int i, int j, int width, char *val, char *markup){
     GtkWidget *label;
+    GtkWidget *event_box = gtk_event_box_new();
+
     if(markup){
         label = gtk_label_new(NULL);
         char str [2048];
@@ -41,19 +87,54 @@ void insert_label(GtkWidget *grid, int i, int j, int width, char *val, char *mar
     }
     gtk_label_set_width_chars (GTK_LABEL(label), width);
 
+    gtk_grid_attach (GTK_GRID(grid), GTK_WIDGET(event_box), i, j, 1 ,1);
+    gtk_widget_show (event_box);
+
+    gtk_container_add (GTK_CONTAINER(event_box), label);
     gtk_widget_show (GTK_WIDGET(label));
-    gtk_grid_attach (GTK_GRID(grid), GTK_WIDGET(label), i, j, 1 ,1);
 }
 
 void on_equipment_lifetime_spin_value_changed(GtkSpinButton *spin_button, gpointer user_data){
     equipment_lifetime = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(equipment_spin));
     if(equipment_lifetime > previous_equipment_lifetime){
-
+        char label[100];
+        for(int i = previous_equipment_lifetime; i < equipment_lifetime; i++){     
+            sprintf(label, "%d", i + 1);
+            insert_label(time_units_g, 0, i + 1, 4, label, NULL);
+            insert_entry(time_units_g, 1, i + 1, 5, "10");
+            sprintf(label, "%d", cost/4 * 3);
+            insert_entry(time_units_g, 2, i + 1, 5, label);
+        }
     } else if (equipment_lifetime < previous_equipment_lifetime) {
-
+        for(int i = previous_equipment_lifetime; i > equipment_lifetime; i--){
+            gtk_grid_remove_row(GTK_GRID(time_units_g), i);
+        }
     }
+    previous_equipment_lifetime = equipment_lifetime;
 }
 
+void on_initial_cost_spin_value_changed(GtkSpinButton *spin_button, gpointer user_data){
+    cost = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(cost_spin));
+}
+
+void on_project_lifetime_spin_value_changed(GtkSpinButton *spin_button, gpointer user_data){
+    project_lifetime = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(project_spin));
+}
+
+Replacement *init_from_ui(){
+    Replacement *R = malloc(sizeof(Replacement));
+    R->initial_cost = cost;
+    R->project_lifetime = project_lifetime;
+    R->equipment_lifetime = equipment_lifetime;
+    R->time_units = get_time_units();
+    init_replacement_from_file(R);
+    return R;
+}
+
+void solve_replacement(GtkButton *button, gpointer user_data){
+    Replacement *R = init_from_ui();
+    print_replacement(R);
+}
 
 void on_load_clicked(){
     GtkWidget *dialog;
@@ -69,11 +150,17 @@ void on_load_clicked(){
     chooser = GTK_FILE_CHOOSER(dialog);
     res = gtk_dialog_run(GTK_DIALOG(dialog));
     if(res == GTK_RESPONSE_ACCEPT){
-        clear_kn();
+        // clear analysis
         char *fn;
         fn = gtk_file_chooser_get_filename(chooser);
+        Replacement *R = load_replacement(fn);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(project_spin), R->project_lifetime);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(equipment_spin), R->equipment_lifetime);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(cost_spin), R->initial_cost);
+        load_time_units(R);
 
         free(fn);
+        free(R);
     }
     gtk_widget_destroy(dialog);  
 }
@@ -97,6 +184,10 @@ void on_save_clicked(){
     gtk_widget_destroy(dialog);
 }
 
+void kill_process(){
+    gtk_main_quit();
+}
+
 int main(int argc, char *argv[]){
     gtk_init(&argc, &argv);
     builder = gtk_builder_new_from_file("glade/replacement.glade");
@@ -115,12 +206,4 @@ int main(int argc, char *argv[]){
     gtk_main();
 
     return 0;
-}
-
-void on_pending_destroy(){
-    gtk_main_quit();
-}
-
-void on_close_clicked(){
-    gtk_main_quit();
 }

@@ -16,7 +16,7 @@
   </object>
   <object class="GtkAdjustment" id="initial_cost">
     <property name="upper">2147483647</property>
-    <property name="value">500</property>
+    <property name="value">400</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
@@ -31,6 +31,7 @@
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Replacement</property>
     <property name="resizable">False</property>
+    <signal name="destroy" handler="kill_process" swapped="no"/>
     <child type="titlebar">
       <placeholder/>
     </child>
@@ -53,6 +54,7 @@
                 <property name="label" translatable="yes">Load</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-directory</property>
+                <signal name="clicked" handler="on_load_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -66,6 +68,7 @@
                 <property name="label" translatable="yes">Save</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-floppy</property>
+                <signal name="clicked" handler="on_save_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -97,6 +100,7 @@
                     <property name="adjustment">initial_cost</property>
                     <property name="numeric">True</property>
                     <property name="wrap">True</property>
+                    <signal name="value-changed" handler="on_initial_cost_spin_value_changed" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -123,6 +127,7 @@
                     <property name="adjustment">equipment_lifetime</property>
                     <property name="numeric">True</property>
                     <property name="wrap">True</property>
+                    <signal name="value-changed" handler="on_equipment_lifetime_spin_value_changed" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
@@ -170,6 +175,7 @@
                     <property name="receives_default">True</property>
                     <property name="image">image1</property>
                     <property name="always_show_image">True</property>
+                    <signal name="clicked" handler="solve_replacement" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left_attach">3</property>
@@ -279,6 +285,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">1</property>
+                                <property name="width_chars">4</property>
                               </object>
                             </child>
                           </object>
@@ -291,6 +298,9 @@
                           <object class="GtkEntry">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="xalign">0.5</property>
+                            <property name="placeholder_text" translatable="yes">10</property>
+                            <signal name="insert-text" handler="entry_number" swapped="no"/>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -301,6 +311,9 @@
                           <object class="GtkEntry">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="xalign">0.5</property>
+                            <property name="placeholder_text" translatable="yes">300</property>
+                            <signal name="insert-text" handler="entry_number" swapped="no"/>
                           </object>
                           <packing>
                             <property name="left_attach">2</property>
@@ -414,7 +427,7 @@
                               <object class="GtkLabel">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">0</property>
+                                <property name="label" translatable="yes">1</property>
                               </object>
                             </child>
                           </object>
@@ -448,7 +461,7 @@
                               <object class="GtkLabel">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">1</property>
+                                <property name="label" translatable="yes">110</property>
                               </object>
                             </child>
                           </object>
@@ -465,7 +478,7 @@
                               <object class="GtkLabel">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">1</property>
+                                <property name="label" translatable="yes">0</property>
                               </object>
                             </child>
                           </object>

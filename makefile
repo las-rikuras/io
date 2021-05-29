@@ -4,7 +4,7 @@ GTK=`pkg-config --cflags --libs gtk+-3.0`
 
 LDFLAGS=-pthread $(GTK) -export-dynamic -lm
 
-OBJS= menu.o exe/floyd_ui exe/knapsack_ui exe/series_ui exe/replacement
+OBJS= menu.o exe/floyd_ui exe/knapsack_ui exe/series_ui exe/replacement_ui
 
 all: $(OBJS)
 	gcc -o menu menu.o $(LDFLAGS)
@@ -38,12 +38,12 @@ series_ui.o: src/series_ui.c
 	gcc -c $(CCFLAGS) src/series_ui.c $(GTK) -o series_ui.o  
 
 # Compile and load replacement_ui 
-exe/replacement: replacement.o
-	gcc -o exe/replacement replacement.o $(LDFLAGS)
-	rm -f replacement.o 
+exe/replacement_ui: replacement_ui.o
+	gcc -o exe/replacement_ui replacement_ui.o $(LDFLAGS)
+	rm -f replacement_ui.o 
 
-replacement.o: src/replacement.c
-	gcc -c $(CCFLAGS) src/replacement.c $(GTK) -o replacement.o
+replacement_ui.o: src/replacement_ui.c
+	gcc -c $(CCFLAGS) src/replacement_ui.c $(GTK) -o replacement_ui.o
     
 clean:
 	rm -f *.o *~ 
