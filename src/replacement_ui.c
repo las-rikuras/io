@@ -35,9 +35,13 @@ Unit** get_time_units(){
         GtkWidget *resale = gtk_grid_get_child_at(GTK_GRID(time_units_g), 2, i + 1);
 
         const char *val = gtk_entry_get_text(GTK_ENTRY(maint));
+        if(strlen(val) == 0)
+            val = gtk_entry_get_placeholder_text(GTK_ENTRY(maint));
         time_units[i]->maintenance = atoi(val);
 
         val = gtk_entry_get_text(GTK_ENTRY(resale));
+        if(strlen(val) == 0)
+            val = gtk_entry_get_placeholder_text(GTK_ENTRY(resale));   
         time_units[i]->resale_price = atoi(val);
     }  
     return time_units;
@@ -178,8 +182,10 @@ void on_save_clicked(){
     if(res == GTK_RESPONSE_ACCEPT){
         char *fn;
         fn = gtk_file_chooser_get_filename(chooser);
-
+        Replacement *R = init_from_ui();
+        save_replacement(fn, R);
         free(fn);
+        free(R);
     }
     gtk_widget_destroy(dialog);
 }
