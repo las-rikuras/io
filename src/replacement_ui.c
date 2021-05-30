@@ -134,9 +134,6 @@ void clear_analysis(){
 }
 
 char* get_next_nodes_string(Replacement *R, int col){
-    /*
-        Carga el array para los saltos que puede dar
-    */
    int *arr = get_next_nodes(R, col);
    int size = get_next_nodes_size(R, col);
    if(size > 0){
@@ -158,9 +155,9 @@ char* get_next_nodes_string(Replacement *R, int col){
 }
 
 void load_analysis(Replacement *R){
-   clear_analysis();
-   char label[100];
-   for(int i = 0; i <= R->project_lifetime; i++){
+    clear_analysis();
+    char label[100];
+    for(int i = 0; i <= R->project_lifetime; i++){
         sprintf(label, "%d", i);
         insert_label(analysis_g, 0, i + 1, 4, label, NULL);
 
@@ -169,7 +166,7 @@ void load_analysis(Replacement *R){
 
         insert_label(analysis_g, 2, i + 1, 4, get_next_nodes_string(R, i), NULL);
         analysis_size++;
-   }
+    }
 }
 
 Replacement *init_from_ui(){
@@ -185,7 +182,7 @@ Replacement *init_from_ui(){
 void solve_replacement(GtkButton *button, gpointer user_data){
     Replacement *R = init_from_ui();
     load_analysis(R);
-    print_replacement(R);
+    free(R);
 }
 
 void on_load_clicked(){
@@ -209,8 +206,9 @@ void on_load_clicked(){
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(project_spin), R->project_lifetime);
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(equipment_spin), R->equipment_lifetime);
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(cost_spin), R->initial_cost);
+        init_replacement_from_file(R);
         load_time_units(R);
-        //load_analysis(R);
+        load_analysis(R);
         free(fn);
         free(R);
     }
@@ -222,8 +220,12 @@ void on_save_clicked(){
     GtkFileChooser *chooser;
     GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_SAVE;
     gint res;
+    GtkFileFilter *filter;
 
     dialog = gtk_file_chooser_dialog_new("Save File", GTK_WINDOW(window), action, "Cancel", GTK_RESPONSE_CANCEL, "Save", GTK_RESPONSE_ACCEPT, NULL);
+    filter = gtk_file_filter_new();
+    gtk_file_filter_add_pattern(filter, "*.rp");
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
     chooser = GTK_FILE_CHOOSER(dialog);
     gtk_file_chooser_set_current_name(chooser, "Untitled");
     res = gtk_dialog_run(GTK_DIALOG(dialog));

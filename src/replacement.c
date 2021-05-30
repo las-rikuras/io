@@ -70,14 +70,11 @@ int* get_next_nodes(Replacement *R, int time_unit){
 int** fill_g(Replacement *R){
     int n = R->project_lifetime + 1;
     int m = R->equipment_lifetime;
-
-    int **matrix = init_matrix(n, m);
-    
+    int **matrix = init_matrix(m, n);
     for(int i = 0; i < m; i++){
         for(int j = 0; j < n; j++)
             matrix[i][j] = -1;
     }
-
     int x = 0;
     matrix[x][n-1] = 0;
     int dif;
@@ -126,12 +123,12 @@ void init_replacement(Replacement *R, int initial_cost, int equipment_lifetime, 
         R->time_units[i]->maintenance = time_units[i][0];
         R->time_units[i]->resale_price = time_units[i][1];
     }   
-    R->changes = init_matrix(R->project_lifetime + 1, R->equipment_lifetime);
+    R->changes = init_matrix(R->equipment_lifetime, R->project_lifetime + 1);
     R->g = fill_g(R);
 }
 
 void init_replacement_from_file(Replacement *R){  
-    R->changes = init_matrix(R->project_lifetime + 1, R->equipment_lifetime);
+    R->changes = init_matrix(R->equipment_lifetime, R->project_lifetime + 1);
     R->g = fill_g(R);
 }
 
@@ -201,7 +198,7 @@ Replacement* load_replacement(char *file_name){
 int main(){
     int equipment_lifetime = 3;
     int initial_cost = 500;
-    int project_lifetime = 5;
+    int project_lifetime = 1;
 
     int equipment[3][2] = {
         {30, 400},
@@ -220,10 +217,5 @@ int main(){
 
     init_replacement(R, initial_cost, equipment_lifetime, project_lifetime, matrix);
     print_replacement(R);
-
-    fill_g(R);
-
-    save_replacement("ejemplo1", R);
-    load_replacement("ejemplo1.rp");
 }
 */
