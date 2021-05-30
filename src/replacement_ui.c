@@ -139,14 +139,17 @@ char* get_next_nodes_string(Replacement *R, int col){
    if(size > 0){
         char *label = malloc(sizeof(char) * 1000);
         char number[1000];
-        sprintf(number, "%d", arr[0]);
+        if(size > 1)
+            sprintf(number, "%d, ", arr[0]);
+        else
+            sprintf(number, "%d", arr[0]);
         strcpy(label, number);
-        for(int i = 1; i < size; i++){
-            if(i % 2){
-                strcat(label, ", ");
-            }
+        for(int i = 1; i < size; i++){        
             sprintf(number, "%d", arr[i]);
             strcat(label, number);
+            if(i < size-1){
+                strcat(label, ", ");
+            }
         }  
         return label;
    } else {
