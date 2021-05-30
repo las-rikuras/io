@@ -15,7 +15,7 @@ make
 - Seleccione el tipo que desea utilizar (BOUNDED, UNBOUNDED, 1/0)  
 - Ingrese la capacidad y la cantidad de objetos  
 - En la tabla Objects, ingrese el valor, el peso y la cantidad de objetos que puede llevar si es Bounded  
-- Presione Solve para ver la tabla del Knapsack  
+- Presione < Solve > para ver la tabla del Knapsack  
 - Presione Clear si desea limpiar la tabla del Knapsack  
 
 ## Floyd
@@ -29,9 +29,10 @@ make
 
 - Ingrese la cantidad de juegos
 - En p_h y p_r puede cambiar las probabilidades de jugar en casa o jugar de visita respectivamente
-- Presione solve para generar la tabla de probabilidades
+- Presione < Solve > para generar la tabla de probabilidades
 
 ## Reemplazo
 
-- Sin implementar
-
+- Ingrese el costo inicial, el largo del proyecto y el tiempo de vida del equipo
+- Ingrese el monto para el mantenimiento y el monto de reventa por cada año de vida del equipo
+- Presione < Solve > para generar la tabla de análisis del tiempo

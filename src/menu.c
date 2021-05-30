@@ -33,7 +33,7 @@ void on_knapsack_clicked(){
 }
 
 void on_replacement_clicked(){
-    system("./exe/pending_ui &");
+    system("./exe/replacement_ui &");
 }
 
 void on_series_clicked(){
