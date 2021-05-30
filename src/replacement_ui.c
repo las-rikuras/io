@@ -13,6 +13,7 @@ GtkWidget *analysis_g;
 int equipment_lifetime = 1;
 int previous_equipment_lifetime = 1;
 int project_lifetime = 1;
+int analysis_size = 0;
 int cost = 400;
 
 void load_time_units(Replacement *R){
@@ -125,20 +126,50 @@ void on_project_lifetime_spin_value_changed(GtkSpinButton *spin_button, gpointer
     project_lifetime = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(project_spin));
 }
 
-void load_next_nodes(Replacement *R){
+void clear_analysis(){
+    for(int i = analysis_size; i > 0; i--){
+        gtk_grid_remove_row(GTK_GRID(analysis_g), i);
+    }
+    analysis_size = 0;
+}
+
+char* get_next_nodes_string(Replacement *R, int col){
     /*
         Carga el array para los saltos que puede dar
     */
+   int *arr = get_next_nodes(R, col);
+   int size = get_next_nodes_size(R, col);
+   if(size > 0){
+        char *label = malloc(sizeof(char) * 1000);
+        char number[1000];
+        sprintf(number, "%d", arr[0]);
+        strcpy(label, number);
+        for(int i = 1; i < size; i++){
+            if(i % 2){
+                strcat(label, ", ");
+            }
+            sprintf(number, "%d", arr[i]);
+            strcat(label, number);
+        }  
+        return label;
+   } else {
+       return "-";
+   }   
 }
 
 void load_analysis(Replacement *R){
-    /*
-        Carga lo del analisis
-        Son tres columnas
-        Ver como acomodar el array de load_next_nodes que va en
-        la ultima columna
-        los otros dos se cargan facil
-    */
+   clear_analysis();
+   char label[100];
+   for(int i = 0; i <= R->project_lifetime; i++){
+        sprintf(label, "%d", i);
+        insert_label(analysis_g, 0, i + 1, 4, label, NULL);
+
+        sprintf(label, "%d", get_min(R, R->g, i));
+        insert_label(analysis_g, 1, i + 1, 4, label, NULL);
+
+        insert_label(analysis_g, 2, i + 1, 4, get_next_nodes_string(R, i), NULL);
+        analysis_size++;
+   }
 }
 
 Replacement *init_from_ui(){
@@ -153,6 +184,7 @@ Replacement *init_from_ui(){
 
 void solve_replacement(GtkButton *button, gpointer user_data){
     Replacement *R = init_from_ui();
+    load_analysis(R);
     print_replacement(R);
 }
 
@@ -178,7 +210,7 @@ void on_load_clicked(){
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(equipment_spin), R->equipment_lifetime);
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(cost_spin), R->initial_cost);
         load_time_units(R);
-
+        //load_analysis(R);
         free(fn);
         free(R);
     }
