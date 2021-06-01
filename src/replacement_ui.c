@@ -25,7 +25,8 @@ int draw_all_solutions = 0;
 int draw_determinate_solution = 0;
 
 int size = 541;
-double scale = 1;
+double current_scale = 1;
+double previous_scale = 1;
 
 Solutions *routes;
 int current_lifetime = 1;
@@ -45,21 +46,21 @@ void draw_area(GtkWidget *widget, cairo_t *cr, gpointer data){
         GdkRGBA *color;
         GtkStyleContext *context;
         context = gtk_widget_get_style_context (widget);
+        double scale = current_scale;
 
         gtk_render_background(context, cr, 0, 0, size, size);
         gtk_widget_set_size_request(widget, size, size);
-        if((current_lifetime*100+41)*scale > size){
-            gtk_render_background(context, cr, 0, 0, (current_lifetime*100+41)*scale , (510+20)*scale);
-            gtk_widget_set_size_request(widget, (current_lifetime*100+41)*scale , (510+20)*scale);
-        }
-        if((510+20)*scale > size){
-            gtk_render_background(context, cr, 0, 0, (current_lifetime*100+41)*scale , (510+20)*scale);
-            gtk_widget_set_size_request(widget, (current_lifetime*100+41)*scale , (510+20)*scale);
-        }
+        gtk_render_background(context, cr, 0, 0, (current_lifetime*100+51)*scale , (510+30)*scale);
+        gtk_widget_set_size_request(widget, (current_lifetime*100+51)*scale , (510+30)*scale);
+        
 
         cairo_save(cr);
         cairo_scale(cr, 1*scale, 1*scale);
         double scale_factor = 1;
+
+        if(previous_scale <= current_scale){
+            scale = 1;
+        }
 
         cairo_set_line_width(cr, 2.0);
         for(int i = 0; i < routes->size; i++){
@@ -67,7 +68,7 @@ void draw_area(GtkWidget *widget, cairo_t *cr, gpointer data){
             for(int j = 1; j < routes->routes[i]->size; j++){
                 cairo_save(cr);
                 cairo_scale(cr, 1, 1*scale_factor);
-                cairo_arc_negative(cr, ((routes->routes[i]->elemets[j]+routes->routes[i]->elemets[j-1])*100+40)/2, 510/scale_factor, 
+                cairo_arc_negative(cr, ((routes->routes[i]->elemets[j]+routes->routes[i]->elemets[j-1])*100+50)/2, 510/scale_factor/scale, 
                                         (routes->routes[i]->elemets[j]-routes->routes[i]->elemets[j-1])*100/2, 0, G_PI);
                 cairo_stroke(cr);
                 cairo_restore(cr);
@@ -75,15 +76,26 @@ void draw_area(GtkWidget *widget, cairo_t *cr, gpointer data){
             scale_factor *= 0.90;
         }
 
+        char label[2];
         for(int i = 0; i <= current_lifetime; i++){
-            cairo_set_source_rgb (cr, 0.8, 0.2, 0.2);
+            cairo_set_source_rgb (cr, 0, 0, 0);
             cairo_stroke(cr);
             cairo_save(cr);
-            cairo_arc(cr, i*100+20, 510, 20, 0, 2*G_PI);
+            cairo_arc(cr, i*100+25, 510/scale, 20, 0, 2*G_PI);
             cairo_set_source_rgba(cr, 1, 1, 1, 1); 
             cairo_fill_preserve(cr);
             cairo_restore(cr); 
             cairo_stroke(cr);
+            cairo_save(cr);
+
+            cairo_move_to(cr, i*100+25-8, 510/scale+6);
+            sprintf(label,"%d", i);
+            cairo_set_font_size (cr, 20);
+            cairo_set_source_rgb (cr, 1, 0.27, 0);
+            cairo_show_text(cr, label);
+            cairo_restore(cr); 
+            cairo_stroke(cr);
+            cairo_save(cr);
         }
         cairo_restore(cr); 
 
@@ -354,24 +366,14 @@ void on_save_clicked(){
     gtk_widget_destroy(dialog);
 }
 
-void kill_process(){
-    gtk_main_quit();
-}
-
 void mouse_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer user_data){
-    /*accel_mask = Gtk.accelerator_get_default_mod_mask()
-   if event.state & accel_mask == Gdk.ModifierType.CONTROL_MASK:
-     direction = event.get_scroll_deltas()[2]
-     if direction > 0:  # scrolling down -> zoom out
-        self.set_zoom_level(self.get_zoom_level() - 0.1)
-     else:
-        self.set_zoom_level(self.get_zoom_level() + 0.1)*/
-    
     if(event->direction == GDK_SCROLL_UP && event->state & GDK_CONTROL_MASK){
-        scale += 0.10; 
+        current_scale += 0.025; 
     }
     else if(event->direction == GDK_SCROLL_DOWN && event->state & GDK_CONTROL_MASK){
-        scale -= 0.10; 
+        if(current_scale > 0.050){
+            current_scale -= 0.025; 
+        }
     }
     gtk_widget_queue_draw(drawing_area);
 }
@@ -387,6 +389,18 @@ int main(int argc, char *argv[]){
     solve_button = GTK_WIDGET(gtk_builder_get_object(builder, "solve"));
     time_units_g = GTK_WIDGET(gtk_builder_get_object(builder, "time_units"));
     analysis_g = GTK_WIDGET(gtk_builder_get_object(builder, "anal_g"));
+    GtkWidget *drawing_scroll = GTK_WIDGET(gtk_builder_get_object(builder, "drawing_scroll"));
+    GtkWidget *info_scroll = GTK_WIDGET(gtk_builder_get_object(builder, "info_scroll"));
+    GtkWidget *analysis_scroll = GTK_WIDGET(gtk_builder_get_object(builder, "analysis_scroll"));
+    GtkWidget *profit_scroll = GTK_WIDGET(gtk_builder_get_object(builder, "profit_scroll"));
+    GtkWidget *toolbar = GTK_WIDGET(gtk_builder_get_object(builder, "toolbar"));
+
+    load_css("css/background.css", window);
+    load_css("css/background.css", drawing_scroll);
+    load_css("css/background.css", info_scroll);
+    load_css("css/background.css", analysis_scroll);
+    load_css("css/background.css", profit_scroll);
+    load_css("css/background.css", toolbar);
 
     gtk_widget_add_events(drawing_area, GDK_SCROLL_MASK);
 

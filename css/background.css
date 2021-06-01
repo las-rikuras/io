@@ -3,3 +3,8 @@ scrolledwindow, toolbar, window.background {
     color: whitesmoke;
     border-color: rgb(35, 35, 35);
 }
+
+box {
+    background: whitesmoke;
+    color: #3e3e3e;
+}
