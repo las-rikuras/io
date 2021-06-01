@@ -185,22 +185,17 @@ void clear_profit(Replacement *R){
 
 void fill_profit_per_time_unit(Replacement *R){
     clear_profit(R);
-    char label[1000];
-    char val[1000];
+    char val[500 * R->project_lifetime];
     int i = 1;
     int j = 0;
-    while(i <= R->equipment_lifetime && i <= R->project_lifetime){  
-        sprintf(val, "<span foreground=\"#fdb927\" size=\"larger\">C</span><span foreground=\"#fdb927\"><sub>%d</sub><sub>%d</sub></span> =  ", j, j+i);
-        strcpy(label, val);
-        j++;   
+    while(i <= R->equipment_lifetime && i <= R->project_lifetime){
         while(i + j <= R->project_lifetime){ 
-            sprintf(val, "<span foreground=\"#fdb927\" size=\"larger\">C</span><span foreground=\"#fdb927\"><sub>%d</sub><sub>%d</sub></span> =  ", j, j+i);
-            strcat(label, val); 
+            sprintf(val, "<span foreground=\"#3da4ab\" size=\"larger\">C</span><span foreground=\"#f6cd61\"><sub>%d</sub></span><span foreground=\"#fe8a71\"><sub>%d</sub></span> =", j, j+i);
+            insert_label(profit_g, j, i, 0, "", val); 
             j++;       
         }
         sprintf(val, "%d + %d - %d = %d", R->initial_cost, R->time_units[i-1]->maintenance, R->time_units[i-1]->resale_price, c(R, j-1, j-1+i));
-        strcat(label, val);
-        insert_label(profit_g, 0, i, -1, "", label); 
+        insert_label(profit_g, R->project_lifetime, i, 0, "", val); 
         i++;
         j = 0;
     }   

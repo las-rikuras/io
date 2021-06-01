@@ -17,7 +17,7 @@
   <object class="GtkAdjustment" id="initial_cost">
     <property name="upper">2147483647</property>
     <property name="value">400</property>
-    <property name="step_increment">1</property>
+    <property name="step_increment">100</property>
     <property name="page_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="project_lifetime">
@@ -426,9 +426,9 @@
                 <property name="height_request">100</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="margin_right">10</property>
                 <property name="margin_top">10</property>
                 <property name="margin_bottom">10</property>
-                <property name="hscrollbar_policy">never</property>
                 <property name="shadow_type">in</property>
                 <child>
                   <object class="GtkViewport">
@@ -443,6 +443,30 @@
                         <property name="margin_top">5</property>
                         <property name="row_spacing">5</property>
                         <property name="column_spacing">5</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
                         <child>
                           <placeholder/>
                         </child>
