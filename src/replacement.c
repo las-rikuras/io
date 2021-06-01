@@ -21,6 +21,9 @@ typedef struct list_struct {
     int *elemets;
     int size;
     int max_list_size;
+    double R;
+    double G;
+    double B;
 } List;
 
 typedef struct solutions {
@@ -29,10 +32,14 @@ typedef struct solutions {
     int max_list_size;
 } Solutions;
 
+double random_0_1(){
+    return (double)rand() / (double)RAND_MAX ;
+}
+
 void list_push(List *stack, int element){
     if(stack->size+1 > stack->max_list_size){
         stack->max_list_size *= 2;
-        realloc(stack->elemets, sizeof(int)*stack->max_list_size);
+        stack->elemets = (int*)realloc(stack->elemets, sizeof(int)*stack->max_list_size);
 
     }
     stack->elemets[stack->size++] = element;
@@ -41,37 +48,52 @@ void list_push(List *stack, int element){
 void solutions_push(Solutions *stack, List element){
     if(stack->size+1 > stack->max_list_size){
         stack->max_list_size *= 2;
-        realloc(stack->routes, sizeof(int)*stack->max_list_size);
+        stack->routes = (List**)realloc(stack->routes, sizeof(int)*stack->max_list_size);
     }
-    stack->routes[stack->size] = (List*)calloc(element.size, sizeof(List));
-    stack->routes[stack->size++] = &element;
-}
-
-Solutions* get_solutions(Replacement *R){
-    Solutions *routes = (Solutions*)calloc(1, sizeof(Solutions));
-    routes->size = 0;
-    routes->routes = (List**)calloc(R->project_lifetime*R->equipment_lifetime+1, sizeof(List*));
-
-    List current_route;
-    current_route.size = 0;
-    current_route.max_list_size = R->project_lifetime;
-    current_route.elemets = (int*)calloc(current_route.max_list_size, sizeof(int));
-    get_solutions_aux(R, 0, current_route, routes);
-    return routes;
+    stack->routes[stack->size] = (List*)calloc(1, sizeof(List));
+    stack->routes[stack->size]->size = element.size;
+    stack->routes[stack->size]->max_list_size = element.max_list_size;
+    stack->routes[stack->size]->elemets = (int*)calloc(element.size, sizeof(int));
+    for(int i = 0; i < stack->routes[stack->size]->size; i++){
+        stack->routes[stack->size]->elemets[i] = element.elemets[i];
+    }
+    stack->routes[stack->size]->R = element.R;
+    stack->routes[stack->size]->G = element.G;
+    stack->routes[stack->size]->B = element.B;
+    stack->size++;
 }
 
 void get_solutions_aux(Replacement *R, int time_unit, List current_route, Solutions *routes){
+    list_push(&current_route, time_unit);
     if(time_unit == R->project_lifetime){
+        current_route.R = random_0_1();
+        current_route.G = random_0_1();
+        current_route.B = random_0_1();
         solutions_push(routes, current_route);
     }
     else{
-        list_push(&current_route, time_unit);
         for(int i = 0; i < R->equipment_lifetime; i++){
             if(R->changes[i][time_unit]){
                 get_solutions_aux(R, i+time_unit+1, current_route, routes);
             }
         }
     }
+}
+
+Solutions* get_solutions(Replacement *R){
+    Solutions *routes = (Solutions*)calloc(1, sizeof(Solutions));
+    routes->size = 0;
+    routes->max_list_size = R->project_lifetime*R->equipment_lifetime+1;
+    routes->routes = (List**)calloc(routes->max_list_size, sizeof(List*));
+
+    List current_route;
+    current_route.size = 0;
+    current_route.max_list_size = R->project_lifetime;
+    current_route.elemets = (int*)calloc(current_route.max_list_size, sizeof(int));
+
+    get_solutions_aux(R, 0, current_route, routes);
+
+    return routes;
 }
 
 int c(Replacement *R, int t, int x){
@@ -127,14 +149,11 @@ int* get_next_nodes(Replacement *R, int time_unit){
 int** fill_g(Replacement *R){
     int n = R->project_lifetime + 1;
     int m = R->equipment_lifetime;
-
-    int **matrix = init_matrix(n, m);
-    
+    int **matrix = init_matrix(m, n);
     for(int i = 0; i < m; i++){
         for(int j = 0; j < n; j++)
             matrix[i][j] = -1;
     }
-
     int x = 0;
     matrix[x][n-1] = 0;
     int dif;
@@ -182,14 +201,82 @@ void init_replacement(Replacement *R, int initial_cost, int equipment_lifetime, 
         R->time_units[i]->maintenance = time_units[i][0];
         R->time_units[i]->resale_price = time_units[i][1];
     }   
-    R->changes = init_matrix(R->project_lifetime + 1, R->equipment_lifetime);
+    R->changes = init_matrix(R->equipment_lifetime, R->project_lifetime + 1);
     R->g = fill_g(R);
 }
 
+void init_replacement_from_file(Replacement *R){  
+    R->changes = init_matrix(R->equipment_lifetime, R->project_lifetime + 1);
+    R->g = fill_g(R);
+}
+
+int save_replacement(char *file_name, Replacement *R){
+    char *fn = malloc((strlen(file_name) + 5));
+    strcpy(fn, file_name);
+    strcat(fn, ".rp");
+    FILE *fp = fopen(fn, "w");
+
+    if (fp == NULL) {
+        printf("Error saving file!\n");
+        return -1;
+    }
+    fprintf(fp, "%d;\n", R->initial_cost);
+    fprintf(fp, "%d;\n", R->project_lifetime);
+    fprintf(fp, "%d;\n", R->equipment_lifetime);
+
+    for(int i = 0; i < R->equipment_lifetime; i++){
+        fprintf(fp, "%d;%d;\n", R->time_units[i]->maintenance, R->time_units[i]->resale_price);
+    }
+
+    fclose(fp);
+    return 0;
+}
+
+Replacement* load_replacement(char *file_name){
+    FILE *fp = fopen(file_name, "r");
+    if (fp == NULL){
+        printf("File doesn't exits\n");
+        exit(1);
+    }
+    int res;
+    Replacement *R = malloc(sizeof(Replacement));
+
+    res = fscanf(fp, "%d;\n", &R->initial_cost);
+    if(res < 1){
+        printf("Incorrect file format\n");
+        exit(1);
+    }
+
+    res = fscanf(fp, "%d;\n", &R->project_lifetime);
+    if(res < 1){
+        printf("Incorrect file format\n");
+        exit(1);
+    }
+
+    res = fscanf(fp, "%d;\n", &R->equipment_lifetime);
+    if(res < 1){
+        printf("Incorrect file format\n");
+        exit(1);
+    }
+
+    R->time_units = malloc(R->equipment_lifetime * sizeof(Unit));
+    for(int i = 0; i < R->equipment_lifetime; i++){
+        R->time_units[i] = malloc(sizeof(Unit));
+        res = fscanf(fp, "%d;%d;\n", &R->time_units[i]->maintenance, &R->time_units[i]->resale_price);
+        if(res < 1){
+            printf("Incorrect file format\n");
+            exit(1);
+        }
+    }
+    fclose(fp);
+    return R;
+}
+
+/*
 int main(){
     int equipment_lifetime = 3;
     int initial_cost = 500;
-    int project_lifetime = 5;
+    int project_lifetime = 1;
 
     int equipment[3][2] = {
         {30, 400},
@@ -208,6 +295,5 @@ int main(){
 
     init_replacement(R, initial_cost, equipment_lifetime, project_lifetime, matrix);
     print_replacement(R);
-
-    fill_g(R);
 }
+*/
