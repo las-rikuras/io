@@ -17,6 +17,63 @@ typedef struct replacement_struct {
     int project_lifetime;
 } Replacement;
 
+typedef struct list_struct {
+    int *elemets;
+    int size;
+    int max_list_size;
+} List;
+
+typedef struct solutions {
+    List **routes;
+    int size;
+    int max_list_size;
+} Solutions;
+
+void list_push(List *stack, int element){
+    if(stack->size+1 > stack->max_list_size){
+        stack->max_list_size *= 2;
+        realloc(stack->elemets, sizeof(int)*stack->max_list_size);
+
+    }
+    stack->elemets[stack->size++] = element;
+}
+
+void solutions_push(Solutions *stack, List element){
+    if(stack->size+1 > stack->max_list_size){
+        stack->max_list_size *= 2;
+        realloc(stack->routes, sizeof(int)*stack->max_list_size);
+    }
+    stack->routes[stack->size] = (List*)calloc(element.size, sizeof(List));
+    stack->routes[stack->size++] = &element;
+}
+
+Solutions* get_solutions(Replacement *R){
+    Solutions *routes = (Solutions*)calloc(1, sizeof(Solutions));
+    routes->size = 0;
+    routes->routes = (List**)calloc(R->project_lifetime*R->equipment_lifetime+1, sizeof(List*));
+
+    List current_route;
+    current_route.size = 0;
+    current_route.max_list_size = R->project_lifetime;
+    current_route.elemets = (int*)calloc(current_route.max_list_size, sizeof(int));
+    get_solutions_aux(R, 0, current_route, routes);
+    return routes;
+}
+
+void get_solutions_aux(Replacement *R, int time_unit, List current_route, Solutions *routes){
+    if(time_unit == R->project_lifetime){
+        solutions_push(routes, current_route);
+    }
+    else{
+        list_push(&current_route, time_unit);
+        for(int i = 0; i < R->equipment_lifetime; i++){
+            if(R->changes[i][time_unit]){
+                get_solutions_aux(R, i+time_unit+1, current_route, routes);
+            }
+        }
+    }
+}
+
 int c(Replacement *R, int t, int x){
     int n = x - t;
     int maintenance = 0;
@@ -113,7 +170,6 @@ void print_replacement(Replacement *R){
         printf("\n");
     }
 }
-
 
 void init_replacement(Replacement *R, int initial_cost, int equipment_lifetime, int project_lifetime, int **time_units){
     R->initial_cost = initial_cost;
