@@ -13,6 +13,7 @@ GtkWidget *solve_button;
 GtkWidget *time_units_g;
 GtkWidget *analysis_g;
 GtkWidget *drawing_area;
+GtkWidget *profit_g;
 
 int equipment_lifetime = 1;
 int previous_equipment_lifetime = 1;
@@ -166,7 +167,9 @@ void insert_label(GtkWidget *grid, int i, int j, int width, char *val, char *mar
     else {
         label = gtk_label_new(val);
     }
-    gtk_label_set_width_chars (GTK_LABEL(label), width);
+
+    if(width)
+        gtk_label_set_width_chars (GTK_LABEL(label), width);
 
     gtk_grid_attach (GTK_GRID(grid), GTK_WIDGET(event_box), i, j, 1 ,1);
     gtk_widget_show (event_box);
@@ -252,6 +255,32 @@ void load_analysis(Replacement *R){
     gtk_widget_queue_draw(drawing_area);
 }
 
+void clear_profit(Replacement *R){
+    GList *rows, *it;
+    rows = gtk_container_get_children(GTK_CONTAINER(profit_g));
+    for(it = rows; it != NULL; it = g_list_next(it))
+        gtk_widget_destroy(GTK_WIDGET(it->data));
+    g_list_free(rows);
+}
+
+void fill_profit_per_time_unit(Replacement *R){
+    clear_profit(R);
+    char val[500 * R->project_lifetime];
+    int i = 1;
+    int j = 0;
+    while(i <= R->equipment_lifetime && i <= R->project_lifetime){
+        while(i + j <= R->project_lifetime){ 
+            sprintf(val, "<span foreground=\"#3da4ab\" size=\"larger\">C</span><span foreground=\"#f6cd61\"><sub>%d</sub></span><span foreground=\"#fe8a71\"><sub>%d</sub></span> =", j, j+i);
+            insert_label(profit_g, j, i, 0, "", val); 
+            j++;       
+        }
+        sprintf(val, "%d + %d - %d = %d", R->initial_cost, R->time_units[i-1]->maintenance, R->time_units[i-1]->resale_price, c(R, j-1, j-1+i));
+        insert_label(profit_g, R->project_lifetime, i, 0, "", val); 
+        i++;
+        j = 0;
+    }   
+}
+
 Replacement *init_from_ui(){
     Replacement *R = malloc(sizeof(Replacement));
     R->initial_cost = cost;
@@ -265,6 +294,7 @@ Replacement *init_from_ui(){
 void solve_replacement(GtkButton *button, gpointer user_data){
     Replacement *R = init_from_ui();
     load_analysis(R);
+    fill_profit_per_time_unit(R);
     free(R);
 }
 
@@ -292,6 +322,7 @@ void on_load_clicked(){
         init_replacement_from_file(R);
         load_time_units(R);
         load_analysis(R);
+        fill_profit_per_time_unit(R);
         free(fn);
         free(R);
     }
@@ -363,6 +394,7 @@ int main(int argc, char *argv[]){
     g_signal_connect(drawing_area, "draw", G_CALLBACK (draw_area), NULL);
     
     
+    profit_g = GTK_WIDGET(gtk_builder_get_object(builder, "profit_g"));
     gtk_builder_connect_signals(builder, NULL);
     g_object_unref(builder);
     gtk_widget_show(window);
