@@ -35,6 +35,8 @@ double previous_scale = 1;
 Solutions *routes;
 int current_lifetime = 1;
 
+int solution_index = 0;
+
 void load_css(char *file, GtkWidget *widget);
 
 void load_css(char *file, GtkWidget *widget){
@@ -355,8 +357,57 @@ Replacement *init_from_ui(){
     return R;
 }
 
+void draw_solution(GtkWidget *widget, cairo_t *cr, gpointer data){
+    GdkRGBA *color;
+    GtkStyleContext *context;
+    context = gtk_widget_get_style_context (widget);
+
+    gtk_render_background(context, cr, 0, 0, 541, 100);
+    gtk_widget_set_size_request(widget, 541, 100);
+    
+    cairo_set_line_width(cr, 2.0);
+
+    cairo_set_source_rgb (cr, routes->routes[solution_index]->R, routes->routes[solution_index]->G, routes->routes[solution_index]->B);
+    for(int i = 0; i < routes->routes[solution_index]->size-1; i++){
+        cairo_move_to(cr, i*100+50, 50);
+        cairo_line_to(cr, (i+1)*100+50, 50);
+        cairo_close_path(cr);
+        cairo_stroke(cr);
+        cairo_save(cr);
+        cairo_restore(cr);
+    }
+
+    char label[2];
+    for(int i = 0; i < routes->routes[solution_index]->size; i++){
+        cairo_set_source_rgb (cr, 0, 0, 0);
+        cairo_stroke(cr);
+        cairo_save(cr);
+        cairo_arc(cr, i*100+50, 50, 25, 0, 2*G_PI);
+        cairo_set_source_rgba(cr, 1, 1, 1, 1); 
+        cairo_fill_preserve(cr);
+        cairo_restore(cr); 
+        cairo_stroke(cr);
+        cairo_save(cr);
+
+        cairo_move_to(cr, i*100+50-8, 50+6);
+        sprintf(label,"%d", routes->routes[solution_index]->elemets[i]);
+        cairo_set_font_size (cr, 20);
+        cairo_set_source_rgb (cr, 1, 0.27, 0);
+        cairo_show_text(cr, label);
+        cairo_restore(cr); 
+        cairo_stroke(cr);
+        cairo_save(cr);
+    }
+}
+ 
+
+void load_single_solution (GtkComboBox *widget, gpointer user_data){
+    solution_index = gtk_combo_box_get_active(widget);
+    gtk_widget_queue_draw(individual_solutions_drawing);
+}
+
 void create_solutions_window(){
-    individual_solutions = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    individual_solutions = gtk_dialog_new();
     gtk_window_set_title(GTK_WINDOW(individual_solutions), "Individual Solutions");
     GtkWidget *grid = gtk_grid_new();
     gtk_grid_set_column_spacing(GTK_GRID(grid), 5);
@@ -370,16 +421,11 @@ void create_solutions_window(){
     GtkWidget *comboBox = gtk_combo_box_text_new();
     char label[30];
     for(int i = 0; i < routes->size; i++){
-        sprintf(label, "Plan %d", i);
+        sprintf(label, "Plan %d", i+1);
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(comboBox), label);
     }
     gtk_combo_box_set_active(GTK_COMBO_BOX(comboBox), 0);
     gtk_grid_attach(GTK_GRID(grid), comboBox, 0, 1, 1, 1);
-
-    GtkWidget *button = gtk_button_new_with_label("Previous");
-    gtk_widget_set_sensitive(button, 0);
-    gtk_grid_attach(GTK_GRID(grid), button, 1, 1, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), gtk_button_new_with_label("Next"), 2, 1, 1, 1);
 
     GtkWidget *scroll = gtk_scrolled_window_new(NULL, NULL);
     gtk_widget_set_size_request(scroll, 541, 100);
@@ -387,8 +433,20 @@ void create_solutions_window(){
     individual_solutions_drawing = gtk_drawing_area_new();
     gtk_container_add(GTK_CONTAINER(viewport), individual_solutions_drawing);
     gtk_container_add(GTK_CONTAINER(scroll), viewport);
-    gtk_grid_attach(GTK_GRID(grid), scroll, 0, 2, 3, 1);
+
+    gtk_widget_set_margin_top(scroll, 10);
+    gtk_widget_set_margin_bottom(scroll, 10);
+    gtk_widget_set_margin_start(scroll, 10);
+    gtk_widget_set_margin_end(scroll, 10);
+    gtk_grid_attach(GTK_GRID(grid), scroll, 0, 2, 1, 1);
     gtk_container_add (GTK_CONTAINER (individual_solutions), grid);
+
+    load_css("css/background.css", grid);
+    load_css("css/background.css", individual_solutions);
+    load_css("css/background.css", scroll);
+    g_signal_connect(comboBox, "changed", G_CALLBACK (load_single_solution), NULL);
+    g_signal_connect(individual_solutions_drawing, "draw", G_CALLBACK (draw_solution), NULL);;
+
     gtk_widget_show_all(individual_solutions);
 }
 
