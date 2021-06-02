@@ -269,8 +269,8 @@ void load_analysis(Replacement *R){
         analysis_size++;
     }
     routes = get_solutions(R);
-    draw_all_solutions = 1;
     current_lifetime = R->project_lifetime;
+    draw_all_solutions = 1;
     gtk_widget_queue_draw(drawing_area);
 }
 
