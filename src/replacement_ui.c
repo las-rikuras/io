@@ -374,7 +374,10 @@ void draw_solution(GtkWidget *widget, cairo_t *cr, gpointer data){
     cairo_set_source_rgb (cr, routes->routes[solution_index]->R, routes->routes[solution_index]->G, routes->routes[solution_index]->B);
     for(int i = 0; i < routes->routes[solution_index]->size-1; i++){
         cairo_move_to(cr, i*100+50, 50);
-        cairo_line_to(cr, (i+1)*100+50, 50);
+        cairo_line_to(cr, (i+1)*100+25, 50);
+        cairo_line_to(cr, (i+1)*100+10, 60);
+        cairo_move_to(cr, (i+1)*100+25, 50);
+        cairo_line_to(cr, (i+1)*100+10, 40);
         cairo_close_path(cr);
         cairo_stroke(cr);
         cairo_save(cr);
