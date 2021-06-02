@@ -209,7 +209,8 @@
                 <property name="height-request">543</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="margin-end">10</property>
+                <property name="margin-right">30</property>
+                <property name="margin-end">30</property>
                 <property name="margin-top">10</property>
                 <property name="shadow-type">in</property>
                 <child>
@@ -250,17 +251,20 @@
                       <object class="GtkGrid" id="time_units">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="halign">center</property>
                         <property name="valign">start</property>
-                        <property name="margin-start">5</property>
-                        <property name="margin-end">5</property>
-                        <property name="margin-bottom">5</property>
+                        <property name="margin-left">5</property>
+                        <property name="margin-end">12</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">12</property>
                         <property name="row-spacing">5</property>
                         <property name="column-spacing">5</property>
-                        <property name="column-homogeneous">True</property>
                         <child>
                           <object class="GtkLabel">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-end">10</property>
                             <property name="label" translatable="yes">Year</property>
                           </object>
                           <packing>
@@ -374,12 +378,11 @@
                         <property name="can-focus">False</property>
                         <property name="halign">center</property>
                         <property name="valign">start</property>
-                        <property name="margin-start">5</property>
-                        <property name="margin-end">5</property>
+                        <property name="margin-end">12</property>
                         <property name="margin-top">5</property>
-                        <property name="margin-bottom">5</property>
+                        <property name="margin-bottom">12</property>
                         <property name="row-spacing">5</property>
-                        <property name="column-spacing">10</property>
+                        <property name="column-spacing">5</property>
                         <child>
                           <object class="GtkLabel">
                             <property name="visible">True</property>
@@ -478,17 +481,26 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <child>
-                      <!-- n-columns=3 n-rows=2 -->
+                      <!-- n-columns=3 n-rows=3 -->
                       <object class="GtkGrid" id="profit_g">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="halign">center</property>
                         <property name="valign">start</property>
-                        <property name="margin-start">5</property>
-                        <property name="margin-end">5</property>
+                        <property name="margin-end">12</property>
                         <property name="margin-top">5</property>
-                        <property name="margin-bottom">5</property>
+                        <property name="margin-bottom">12</property>
                         <property name="row-spacing">10</property>
+                        <property name="column-spacing">3</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
                         <child>
                           <placeholder/>
                         </child>

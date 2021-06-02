@@ -166,7 +166,7 @@ void insert_entry(GtkWidget *grid, int i, int j, int width, char *placeholder){
     gtk_grid_attach (GTK_GRID(grid), GTK_WIDGET(entry), i, j, 1 ,1);
 }
 
-void insert_label(GtkWidget *grid, int i, int j, int width, char *val, char *markup){
+void insert_label(GtkWidget *grid, int i, int j, int width, char *val, char *markup, float align){
     GtkWidget *label;
     GtkWidget *event_box = gtk_event_box_new();
 
@@ -183,6 +183,7 @@ void insert_label(GtkWidget *grid, int i, int j, int width, char *val, char *mar
     if(width)
         gtk_label_set_width_chars (GTK_LABEL(label), width);
 
+    gtk_label_set_xalign (GTK_LABEL(label), align);
     gtk_grid_attach (GTK_GRID(grid), GTK_WIDGET(event_box), i, j, 1 ,1);
     gtk_widget_show (event_box);
 
@@ -196,7 +197,7 @@ void on_equipment_lifetime_spin_value_changed(GtkSpinButton *spin_button, gpoint
         char label[100];
         for(int i = previous_equipment_lifetime; i < equipment_lifetime; i++){     
             sprintf(label, "%d", i + 1);
-            insert_label(time_units_g, 0, i + 1, 4, label, NULL);
+            insert_label(time_units_g, 0, i + 1, 4, label, NULL, .5f);
             insert_entry(time_units_g, 1, i + 1, 5, "10");
             sprintf(label, "%d", cost/4 * 3);
             insert_entry(time_units_g, 2, i + 1, 5, label);
@@ -253,12 +254,12 @@ void load_analysis(Replacement *R){
     char label[100];
     for(int i = 0; i <= R->project_lifetime; i++){
         sprintf(label, "%d", i);
-        insert_label(analysis_g, 0, i + 1, 4, label, NULL);
+        insert_label(analysis_g, 0, i + 1, 4, label, NULL, .5f);
 
         sprintf(label, "%d", get_min(R, R->g, i));
-        insert_label(analysis_g, 1, i + 1, 4, label, NULL);
+        insert_label(analysis_g, 1, i + 1, 4, label, NULL, .5f);
 
-        insert_label(analysis_g, 2, i + 1, 4, get_next_nodes_string(R, i), NULL);
+        insert_label(analysis_g, 2, i + 1, 4, get_next_nodes_string(R, i), NULL, .5f);
         analysis_size++;
     }
     routes = get_solutions(R);
@@ -278,16 +279,27 @@ void clear_profit(Replacement *R){
 void fill_profit_per_time_unit(Replacement *R){
     clear_profit(R);
     char val[500 * R->project_lifetime];
+    char m[1000];
     int i = 1;
     int j = 0;
     while(i <= R->equipment_lifetime && i <= R->project_lifetime){
         while(i + j <= R->project_lifetime){ 
             sprintf(val, "<span foreground=\"#3da4ab\" size=\"larger\">C</span><span foreground=\"#f6cd61\"><sub>%d</sub></span><span foreground=\"#fe8a71\"><sub>%d</sub></span> =", j, j+i);
-            insert_label(profit_g, j, i, 0, "", val); 
+            insert_label(profit_g, j, i, 0, "", val, .0f); 
             j++;       
         }
-        sprintf(val, "%d + %d - %d = %d", R->initial_cost, R->time_units[i-1]->maintenance, R->time_units[i-1]->resale_price, c(R, j-1, j-1+i));
-        insert_label(profit_g, R->project_lifetime, i, 0, "", val); 
+
+        strcpy(m, "");
+        for(int k = 0; k < i; k++){
+            if(k < i-1)
+                sprintf(val, "%d + ", R->time_units[k]->maintenance);
+            else
+                sprintf(val, "%d", R->time_units[k]->maintenance);
+            strcat(m, val);
+        }
+
+        sprintf(val, "%d + %s - %d = %d", R->initial_cost, m, R->time_units[i-1]->resale_price, c(R, j-1, j-1+i));
+        insert_label(profit_g, R->project_lifetime, i, 0, "", val, .0f); 
         i++;
         j = 0;
     }   
