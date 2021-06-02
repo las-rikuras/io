@@ -14,12 +14,14 @@ GtkWidget *time_units_g;
 GtkWidget *analysis_g;
 GtkWidget *drawing_area;
 GtkWidget *profit_g;
+GtkWidget *index_spin;
 
 int equipment_lifetime = 1;
 int previous_equipment_lifetime = 1;
 int project_lifetime = 1;
 int analysis_size = 0;
 int cost = 400;
+float inflation_index = .0f;
 
 int draw_all_solutions = 0;
 int draw_determinate_solution = 0;
@@ -218,6 +220,10 @@ void on_project_lifetime_spin_value_changed(GtkSpinButton *spin_button, gpointer
     project_lifetime = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(project_spin));
 }
 
+void on_inflation_spin_value_changed(GtkSpinButton *spin_button, gpointer user_data){
+    inflation_index = gtk_spin_button_get_value(GTK_SPIN_BUTTON(index_spin));
+}
+
 void clear_analysis(){
     for(int i = analysis_size; i > 0; i--){
         gtk_grid_remove_row(GTK_GRID(analysis_g), i);
@@ -268,7 +274,7 @@ void load_analysis(Replacement *R){
     gtk_widget_queue_draw(drawing_area);
 }
 
-void clear_profit(Replacement *R){
+void clear_profit(){
     GList *rows, *it;
     rows = gtk_container_get_children(GTK_CONTAINER(profit_g));
     for(it = rows; it != NULL; it = g_list_next(it))
@@ -277,7 +283,7 @@ void clear_profit(Replacement *R){
 }
 
 void fill_profit_per_time_unit(Replacement *R){
-    clear_profit(R);
+    clear_profit();
     char val[500 * R->project_lifetime];
     char m[1000];
     int i = 1;
@@ -305,11 +311,43 @@ void fill_profit_per_time_unit(Replacement *R){
     }   
 }
 
+void fill_profit_per_time_unit_inflation(Replacement *R){
+    clear_profit();
+    char val[1000 * R->project_lifetime];
+    int j = 0;
+    int i = 1;
+    int row = 0;
+    char m[1000];
+    while(i <= R->equipment_lifetime && i <= R->project_lifetime){
+        while(i + j <= R->project_lifetime){ 
+            sprintf(val, "<span foreground=\"#3da4ab\" size=\"larger\">C</span><span foreground=\"#f6cd61\"><sub>%d</sub></span><span foreground=\"#fe8a71\"><sub>%d</sub></span> = ", j, j+i);
+            insert_label(profit_g, 0, row, 0, "", val, .0f); 
+
+            strcpy(m, "");
+            for(int k = 0; k < i; k++){
+                if(k < i-1)
+                    sprintf(val, "%d + ", R->time_units[k]->maintenance);
+                else
+                    sprintf(val, "%d", R->time_units[k]->maintenance);
+                strcat(m, val);
+            }
+
+            sprintf(val, "%d + %s - %d = %d", R->prices[j], m, R->time_units[i-1]->resale_price, c(R, j, j+i));
+            insert_label(profit_g, 1, row, 0, "", val, .0f); 
+            j++;   
+            row++;  
+        }
+        i++;
+        j = 0;
+    }  
+}
+
 Replacement *init_from_ui(){
     Replacement *R = malloc(sizeof(Replacement));
     R->initial_cost = cost;
     R->project_lifetime = project_lifetime;
     R->equipment_lifetime = equipment_lifetime;
+    R->index = inflation_index;
     R->time_units = get_time_units();
     init_replacement_from_file(R);
     return R;
@@ -318,7 +356,10 @@ Replacement *init_from_ui(){
 void solve_replacement(GtkButton *button, gpointer user_data){
     Replacement *R = init_from_ui();
     load_analysis(R);
-    fill_profit_per_time_unit(R);
+    if(R->index > 0)
+            fill_profit_per_time_unit_inflation(R);
+    else
+        fill_profit_per_time_unit(R);
     free(R);
 }
 
@@ -343,10 +384,14 @@ void on_load_clicked(){
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(project_spin), R->project_lifetime);
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(equipment_spin), R->equipment_lifetime);
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(cost_spin), R->initial_cost);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(index_spin), R->index);
         init_replacement_from_file(R);
         load_time_units(R);
         load_analysis(R);
-        fill_profit_per_time_unit(R);
+        if(R->index > 0)
+            fill_profit_per_time_unit_inflation(R);
+        else
+            fill_profit_per_time_unit(R);
         free(fn);
         free(R);
     }
@@ -397,6 +442,7 @@ int main(int argc, char *argv[]){
     drawing_area = GTK_WIDGET(gtk_builder_get_object(builder, "drawing_area"));
     project_spin = GTK_WIDGET(gtk_builder_get_object(builder, "project_lifetime_spin"));
     equipment_spin = GTK_WIDGET(gtk_builder_get_object(builder, "equipment_lifetime_spin"));
+    index_spin = GTK_WIDGET(gtk_builder_get_object(builder, "inflation_spin"));
     cost_spin = GTK_WIDGET(gtk_builder_get_object(builder, "initial_cost_spin"));
     solve_button = GTK_WIDGET(gtk_builder_get_object(builder, "solve"));
     time_units_g = GTK_WIDGET(gtk_builder_get_object(builder, "time_units"));

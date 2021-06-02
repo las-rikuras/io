@@ -12,9 +12,11 @@ typedef struct replacement_struct {
     Unit **time_units;
     int **g;
     int **changes;
+    int *prices;
     int initial_cost;
     int equipment_lifetime;
     int project_lifetime;
+    double index;
 } Replacement;
 
 typedef struct list_struct {
@@ -101,7 +103,7 @@ int c(Replacement *R, int t, int x){
     int maintenance = 0;
     for(int i = 0; i < n; i++)
         maintenance += R->time_units[i]->maintenance;
-    return R->initial_cost + maintenance - R->time_units[n-1]->resale_price;
+    return R->prices[t] + maintenance - R->time_units[n-1]->resale_price;
 }
 
 int** init_matrix(int n, int m){
@@ -172,6 +174,7 @@ void print_replacement(Replacement *R){
     printf("Project duration: %d\n", R->project_lifetime);
     printf("Initial Cost: %d\n", R->initial_cost);
     printf("Equipment lifetime: %d\n", R->equipment_lifetime);
+    printf("Inflation index: %f\n", R->index);
 
     printf("Equipment\n");
     for(int i = 0; i < R->equipment_lifetime; i++)
@@ -190,11 +193,20 @@ void print_replacement(Replacement *R){
     }
 }
 
-void init_replacement(Replacement *R, int initial_cost, int equipment_lifetime, int project_lifetime, int **time_units){
+int* init_prices(Replacement *R){
+    int *res = calloc(R->project_lifetime, sizeof(int));
+    res[0] = R->initial_cost;
+    for(int i = 1; i < R->project_lifetime; i++){
+        res[i] = res[i-1] + (R->index * R->initial_cost);
+    }
+    return res;
+}
+
+void init_replacement(Replacement *R, int initial_cost, int equipment_lifetime, int project_lifetime, int **time_units, float index){
     R->initial_cost = initial_cost;
     R->equipment_lifetime = equipment_lifetime;
     R->project_lifetime = project_lifetime;
-
+    R->index = index;
     R->time_units = malloc(R->equipment_lifetime * sizeof(Unit));
     for(int i = 0; i < R->equipment_lifetime; i++){
         R->time_units[i] = malloc(sizeof(Unit));
@@ -202,12 +214,14 @@ void init_replacement(Replacement *R, int initial_cost, int equipment_lifetime, 
         R->time_units[i]->resale_price = time_units[i][1];
     }   
     R->changes = init_matrix(R->equipment_lifetime, R->project_lifetime + 1);
+    R->prices = init_prices(R);
     R->g = fill_g(R);
 }
 
 void init_replacement_from_file(Replacement *R){  
     R->changes = init_matrix(R->equipment_lifetime, R->project_lifetime + 1);
-    R->g = fill_g(R);
+    R->prices = init_prices(R);
+    R->g = fill_g(R);   
 }
 
 int save_replacement(char *file_name, Replacement *R){
@@ -223,7 +237,7 @@ int save_replacement(char *file_name, Replacement *R){
     fprintf(fp, "%d;\n", R->initial_cost);
     fprintf(fp, "%d;\n", R->project_lifetime);
     fprintf(fp, "%d;\n", R->equipment_lifetime);
-
+    fprintf(fp, "%lf;\n", R->index);
     for(int i = 0; i < R->equipment_lifetime; i++){
         fprintf(fp, "%d;%d;\n", R->time_units[i]->maintenance, R->time_units[i]->resale_price);
     }
@@ -259,6 +273,12 @@ Replacement* load_replacement(char *file_name){
         exit(1);
     }
 
+    res = fscanf(fp, "%lf;\n", &R->index);
+    if(res < 1){
+        printf("Incorrect file format\n");
+        exit(1);
+    }
+
     R->time_units = malloc(R->equipment_lifetime * sizeof(Unit));
     for(int i = 0; i < R->equipment_lifetime; i++){
         R->time_units[i] = malloc(sizeof(Unit));
@@ -276,7 +296,8 @@ Replacement* load_replacement(char *file_name){
 int main(){
     int equipment_lifetime = 3;
     int initial_cost = 500;
-    int project_lifetime = 1;
+    int project_lifetime = 5;
+    float index = .05f;
 
     int equipment[3][2] = {
         {30, 400},
@@ -293,7 +314,11 @@ int main(){
 
     Replacement *R = malloc(sizeof(Replacement));
 
-    init_replacement(R, initial_cost, equipment_lifetime, project_lifetime, matrix);
+    init_replacement(R, initial_cost, equipment_lifetime, project_lifetime, matrix, index);
     print_replacement(R);
+    save_replacement("prueba", R); 
+    Replacement *test = load_replacement("prueba.rp");
+    init_replacement_from_file(test);
+    print_replacement(test);
 }
 */
