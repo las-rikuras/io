@@ -204,34 +204,6 @@
               </packing>
             </child>
             <child>
-              <object class="GtkScrolledWindow" id="drawing_scroll">
-                <property name="width-request">543</property>
-                <property name="height-request">543</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="margin-end">10</property>
-                <property name="margin-top">10</property>
-                <property name="shadow-type">in</property>
-                <child>
-                  <object class="GtkViewport">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <child>
-                      <object class="GtkDrawingArea" id="drawing_area">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">1</property>
-                <property name="height">6</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkScrolledWindow" id="info_scroll">
                 <property name="height-request">100</property>
                 <property name="visible">True</property>
@@ -516,6 +488,61 @@
                 <property name="left-attach">0</property>
                 <property name="top-attach">5</property>
               </packing>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow" id="drawing_scroll">
+                <property name="width-request">543</property>
+                <property name="height-request">543</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="margin-right">10</property>
+                <property name="margin-end">10</property>
+                <property name="margin-top">10</property>
+                <property name="shadow-type">in</property>
+                <child>
+                  <object class="GtkViewport">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <child>
+                      <object class="GtkDrawingArea" id="drawing_area">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">2</property>
+                <property name="height">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="shadow-type">in</property>
+                <child>
+                  <object class="GtkViewport">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <child>
+                      <object class="GtkDrawingArea">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
             </child>
             <child>
               <placeholder/>
