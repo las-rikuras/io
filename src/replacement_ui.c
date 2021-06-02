@@ -15,6 +15,8 @@ GtkWidget *analysis_g;
 GtkWidget *drawing_area;
 GtkWidget *profit_g;
 GtkWidget *index_spin;
+GtkWidget *individual_solutions;
+GtkWidget *individual_solutions_drawing;
 
 int equipment_lifetime = 1;
 int previous_equipment_lifetime = 1;
@@ -353,6 +355,43 @@ Replacement *init_from_ui(){
     return R;
 }
 
+void create_solutions_window(){
+    individual_solutions = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(individual_solutions), "Individual Solutions");
+    GtkWidget *grid = gtk_grid_new();
+    gtk_grid_set_column_spacing(GTK_GRID(grid), 5);
+    gtk_grid_set_row_spacing(GTK_GRID(grid), 5);
+    gtk_widget_set_margin_top(grid, 10);
+    gtk_widget_set_margin_bottom(grid, 10);
+    gtk_widget_set_margin_start(grid, 10);
+    gtk_widget_set_margin_end(grid, 10);
+
+    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Plans: "), 0, 0, 1, 1);
+    GtkWidget *comboBox = gtk_combo_box_text_new();
+    char label[30];
+    for(int i = 0; i < routes->size; i++){
+        sprintf(label, "Plan %d", i);
+        gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(comboBox), label);
+    }
+    gtk_combo_box_set_active(GTK_COMBO_BOX(comboBox), 0);
+    gtk_grid_attach(GTK_GRID(grid), comboBox, 0, 1, 1, 1);
+
+    GtkWidget *button = gtk_button_new_with_label("Previous");
+    gtk_widget_set_sensitive(button, 0);
+    gtk_grid_attach(GTK_GRID(grid), button, 1, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), gtk_button_new_with_label("Next"), 2, 1, 1, 1);
+
+    GtkWidget *scroll = gtk_scrolled_window_new(NULL, NULL);
+    gtk_widget_set_size_request(scroll, 541, 100);
+    GtkWidget *viewport = gtk_viewport_new(NULL, NULL);
+    individual_solutions_drawing = gtk_drawing_area_new();
+    gtk_container_add(GTK_CONTAINER(viewport), individual_solutions_drawing);
+    gtk_container_add(GTK_CONTAINER(scroll), viewport);
+    gtk_grid_attach(GTK_GRID(grid), scroll, 0, 2, 3, 1);
+    gtk_container_add (GTK_CONTAINER (individual_solutions), grid);
+    gtk_widget_show_all(individual_solutions);
+}
+
 void solve_replacement(GtkButton *button, gpointer user_data){
     Replacement *R = init_from_ui();
     load_analysis(R);
@@ -361,6 +400,7 @@ void solve_replacement(GtkButton *button, gpointer user_data){
     else
         fill_profit_per_time_unit(R);
     free(R);
+    create_solutions_window();
 }
 
 void on_load_clicked(){
@@ -468,7 +508,6 @@ int main(int argc, char *argv[]){
     
     profit_g = GTK_WIDGET(gtk_builder_get_object(builder, "profit_g"));
     gtk_builder_connect_signals(builder, NULL);
-    g_object_unref(builder);
     gtk_widget_show(window);
     gtk_main();
 
