@@ -1,10 +1,10 @@
-scrolledwindow, toolbar, window.background {
+scrolledwindow, toolbar, window.background, dialog {
     background: #3e3e3e;
     color: whitesmoke;
     border-color: rgb(35, 35, 35);
 }
 
 box {
-    background: whitesmoke;
-    color: #3e3e3e;
+    background: #3e3e3e;
+    color: whitesmoke;
 }

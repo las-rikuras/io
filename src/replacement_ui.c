@@ -364,6 +364,10 @@ void draw_solution(GtkWidget *widget, cairo_t *cr, gpointer data){
 
     gtk_render_background(context, cr, 0, 0, 541, 100);
     gtk_widget_set_size_request(widget, 541, 100);
+    if(routes->routes[solution_index]->size > 5){
+        gtk_render_background(context, cr, 0, 0, 591+100*(routes->routes[solution_index]->size - 5), 100);
+        gtk_widget_set_size_request(widget, 591+100*(routes->routes[solution_index]->size - 5), 100);
+    }
     
     cairo_set_line_width(cr, 2.0);
 
@@ -406,8 +410,13 @@ void load_single_solution (GtkComboBox *widget, gpointer user_data){
     gtk_widget_queue_draw(individual_solutions_drawing);
 }
 
-void create_solutions_window(){
-    individual_solutions = gtk_dialog_new();
+void clear_index(GtkWidget *object, gpointer user_data){
+    gtk_widget_set_sensitive(GTK_WIDGET(user_data), 1);
+    solution_index = 0;
+}
+
+void create_solutions_window(GtkButton *button){
+    individual_solutions = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(individual_solutions), "Individual Solutions");
     GtkWidget *grid = gtk_grid_new();
     gtk_grid_set_column_spacing(GTK_GRID(grid), 5);
@@ -444,10 +453,13 @@ void create_solutions_window(){
     load_css("css/background.css", grid);
     load_css("css/background.css", individual_solutions);
     load_css("css/background.css", scroll);
+
     g_signal_connect(comboBox, "changed", G_CALLBACK (load_single_solution), NULL);
     g_signal_connect(individual_solutions_drawing, "draw", G_CALLBACK (draw_solution), NULL);;
+    g_signal_connect(individual_solutions, "destroy", G_CALLBACK (clear_index), button);;
 
     gtk_widget_show_all(individual_solutions);
+    gtk_window_set_keep_above(GTK_WINDOW(individual_solutions), 1);
 }
 
 void solve_replacement(GtkButton *button, gpointer user_data){
@@ -458,7 +470,8 @@ void solve_replacement(GtkButton *button, gpointer user_data){
     else
         fill_profit_per_time_unit(R);
     free(R);
-    create_solutions_window();
+    create_solutions_window(button);
+    gtk_widget_set_sensitive(GTK_WIDGET(button), 0);
 }
 
 void on_load_clicked(){
